@@ -1,0 +1,67 @@
+/**
+ * @owner SV2
+ * @spec §2, §3.4, §8.2 Sales Module Styles (Prefix: .sal-)
+ */
+.sal-aging-bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--ip-radius-pill);
+  overflow: hidden;
+  background: var(--ip-border);
+  min-width: 120px;
+}
+.sal-aging-seg-current { background-color: var(--ip-chart-teal); }
+.sal-aging-seg-30 { background-color: var(--ip-chart-honey); }
+.sal-aging-seg-60 { background-color: var(--ip-warning); }
+.sal-aging-seg-90 { background-color: var(--ip-danger); }
+
+.sal-step-indicator {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.sal-step-pill {
+  padding: 8px 10px;
+  border-radius: var(--ip-radius-sm);
+  background: var(--ip-surface-raised);
+  border: 1px solid var(--ip-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ip-muted);
+}
+.sal-step-pill.active {
+  background: var(--ip-primary-tint);
+  border-color: var(--ip-primary);
+  color: var(--ip-primary);
+}
+
+.sal-preview-box {
+  background: var(--ip-surface-raised);
+  border: 1px dashed var(--ip-border-strong);
+  border-radius: var(--ip-radius-md);
+  padding: 14px 16px;
+  white-space: pre-line;
+  font-size: 0.88rem;
+}
+
+.sal-summary-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 991.98px) {
+  .sal-summary-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sal-step-indicator {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 575.98px) {
+  .sal-summary-tiles {
+    grid-template-columns: 1fr;
+  }
+}

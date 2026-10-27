@@ -1,0 +1,71 @@
+/**
+ * @owner SV4
+ * @spec §2, §3.4, §8.4 Admin Module Styles (Prefix: .adm-)
+ */
+.adm-settings-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.adm-vtabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-card);
+  padding: 10px;
+}
+
+.adm-vtab-btn {
+  border: none;
+  background: transparent;
+  color: var(--ip-ink);
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: var(--ip-radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.adm-vtab-btn:hover {
+  background: var(--ip-surface-raised);
+}
+.adm-vtab-btn.active {
+  background: var(--ip-primary-tint);
+  color: var(--ip-primary);
+}
+
+.adm-sticky-savebar {
+  position: sticky;
+  bottom: 16px;
+  z-index: 1010;
+  background: var(--ip-sidebar);
+  color: #FFFFFF;
+  border-radius: var(--ip-radius-card);
+  padding: 12px 20px;
+  box-shadow: var(--ip-shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 991.98px) {
+  .adm-settings-layout {
+    grid-template-columns: 1fr;
+  }
+  .adm-vtabs {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .adm-vtab-btn {
+    white-space: nowrap;
+  }
+}

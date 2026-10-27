@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV1 · VIDEO 2 (TRANG 2 - KẾ TOÁN): LẬP HÓA ĐƠN GTGT & TRỢ LÝ AI-1
+     Kiến trúc chuẩn InvoicePilot: IIFE Namespace window.IP (Calc, AI, DB, UI)
+     ========================================================================= -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV1 · Trang 2 — Lập Hóa đơn GTGT & Trợ lý AI-1 | InvoicePilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --ip-bg: #F7F6F2; --ip-surface: #FFFFFF; --ip-sidebar: #0F1F1C; --ip-primary: #0B5D50; --ip-accent: #E8B44A; --ip-border: #E4E2DC; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--ip-bg); color: #14201D; margin: 0; }
+    .ip-shell { display: flex; min-height: 100vh; }
+    .ip-sidebar { width: 250px; background: var(--ip-sidebar); color: #EAF2EF; padding: 1.25rem 1rem; flex-shrink: 0; }
+    .ip-brand { font-weight: 700; font-size: 1.15rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .ip-nav-link { display: flex; align-items: center; gap: 10px; color: rgba(234,242,239,0.75); padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+    .ip-nav-link:hover, .ip-nav-link.active { background: rgba(232,180,74,0.16); color: var(--ip-accent); font-weight: 600; }
+    .ip-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ip-topbar { height: 60px; background: var(--ip-surface); border-bottom: 1px solid var(--ip-border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .ip-content { padding: 1.5rem; max-width: 1360px; }
+    .ip-card { background: var(--ip-surface); border: 1px solid var(--ip-border); border-radius: 12px; padding: 1.25rem; }
+    .ip-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .ai-panel { background: linear-gradient(180deg, #F2F8F6 0%, #FFFFFF 100%); border: 1px solid #B7D7CE; border-radius: 12px; padding: 1.2rem; }
+    #ip-toast-box { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+  </style>
+</head>
+<body data-page="accountant-invoice-form" data-roles="accountant">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV1 · Phân hệ Kế toán & Admin</div>
+      <a class="ip-nav-link" href="SV1-Trang1-accountant-invoice-list.html"><i class="bi bi-receipt"></i> 1. Danh sách HĐ & Đối chiếu</a>
+      <a class="ip-nav-link active" href="SV1-Trang2-accountant-invoice-form.html"><i class="bi bi-file-earmark-plus"></i> 2. Lập Hóa đơn & AI-1</a>
+      <a class="ip-nav-link" href="SV1-Trang3-admin-invoice-settings.html"><i class="bi bi-sliders"></i> 3. [Admin] Cấu hình HĐ & AI</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Nguyễn Thu Hà</strong><br><span class="text-warning">Kế toán trưởng công nợ</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Kế toán Công nợ / <strong class="text-dark">Lập Hóa đơn GTGT Điện tử (1C26TAA) & Trợ lý AI-1</strong></div>
+        <a class="btn btn-sm btn-outline-secondary" href="SV1-Trang1-accountant-invoice-list.html"><i class="bi bi-arrow-left"></i> Về Sổ Hóa đơn</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+  /**
+   * @owner SV1
+   * @spec §8.1, §9.2 Form Lập Hóa đơn Đa dòng & Động cơ Trợ lý AI-1 Kiểm tra Bất thường
+   */
+  (function (window) {
+    'use strict';
+    const IP = (window.IP = window.IP || {});
+    const STORAGE_KEY = 'invoicepilot.sv1.demo.v1';
+    const SETTINGS_KEY = 'invoicepilot.sv1.settings.v1';
+
+    IP.Fmt = { vnd: (n) => Math.round(Number(n || 0)).toLocaleString('vi-VN') + ' ₫' };
+
+    // 1. DANH MỤC KHÁCH HÀNG B2B & CẤU HÌNH ĐỒNG BỘ TỪ TRANG ADMIN (TRANG 3)
+    const CUSTOMERS = [
+      { id: 'c1', name: 'Tập đoàn Bán lẻ Phú Thái', creditLimit: 300000000, currentDebt: 165000000, stdTermDays: 30, avgInvoice: 90000000 },
+      { id: 'c2', name: 'Công ty CP Logistics Sao Việt', creditLimit: 250000000, currentDebt: 58000000, stdTermDays: 30, avgInvoice: 75000000 },
+      { id: 'c3', name: 'Công ty CP Dược phẩm Tâm Bình', creditLimit: 400000000, currentDebt: 200000000, stdTermDays: 45, avgInvoice: 110000000 }
+    ];
+
+    function getSettings() {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      return raw ? JSON.parse(raw) : { prefix: 'IP', nextNumber: 6, defaultVat: 10, defaultTermDays: 30, aiAnomaly: true, anomalyThreshold: 250 };
+    }
+
+    // 2. CÔNG THỨC TÍNH TỔNG TIỀN HÓA ĐƠN NHIỀU DÒNG HÀNG HÓA (IP.Calc.computeTotals)
+    IP.Calc = {
+      computeTotals: function (items) {
+        let subtotal = 0, discountTotal = 0, vatTotal = 0;
+        items.forEach((it) => {
+          const gross = Math.round(Number(it.qty || 0) * Number(it.price || 0));
+          const disc = Math.round(gross * (Number(it.discountPct || 0) / 100));
+          const net = Math.max(0, gross - disc);
+          const vat = Math.round(net * (Number(it.vatRate || 0) / 100));
+          subtotal += gross; discountTotal += disc; vatTotal += vat;
+        });
+        return { subtotal, discountTotal, vatTotal, grandTotal: subtotal - discountTotal + vatTotal };
+      }
+    };
+
+    // 3. ĐỘNG CƠ TRỢ LÝ AI-1: RÀ SOÁT 4 QUY TẮC BẤT THƯỜNG HÓA ĐƠN & GỢI Ý SỬA LỖI (IP.AI)
+    IP.AI = {
+      checkInvoiceAnomalies: function (draft, cust, cfg) {
+        const findings = [];
+        const applyFix = {};
+        const totals = IP.Calc.computeTotals(draft.items);
+        const termDays = Math.round((new Date(draft.dueDate) - new Date(draft.issueDate)) / 86400000);
+
+        // Quy tắc 1: Kỳ hạn thanh toán lệch chuẩn hợp đồng (< 7 ngày hoặc lệch > 15 ngày)
+        if (termDays < 7 || Math.abs(termDays - cust.stdTermDays) >= 15) {
+          const safeDue = new Date(new Date(draft.issueDate).getTime() + cust.stdTermDays * 86400000).toISOString().slice(0, 10);
+          findings.push({ level: 'warning', title: `Kỳ hạn thanh toán lệch chuẩn (${termDays} ngày so với chuẩn ${cust.stdTermDays} ngày)`, detail: `Đề xuất chỉnh lại ngày đáo hạn về ${safeDue}.` });
+          applyFix.dueDate = safeDue;
+        }
+        // Quy tắc 2: Thuế suất GTGT khác cấu hình mặc định (10%)
+        if (draft.items.some((i) => Number(i.vatRate) !== Number(cfg.defaultVat))) {
+          findings.push({ level: 'info', title: `Thuế suất GTGT khác mặc định (${cfg.defaultVat}%)`, detail: `Có dòng hàng hóa đang áp thuế khác mức chuẩn ${cfg.defaultVat}%.` });
+          applyFix.vatRate = cfg.defaultVat;
+        }
+        // Quy tắc 3: Giá trị hóa đơn vượt ngưỡng cảnh báo bất thường (Mặc định 250% trung bình lịch sử)
+        const ratioPct = Math.round((totals.grandTotal / cust.avgInvoice) * 100);
+        if (ratioPct >= cfg.anomalyThreshold) {
+          findings.push({ level: 'warning', title: `Giá trị hóa đơn đột biến (${ratioPct}% so với mức TB ${IP.Fmt.vnd(cust.avgInvoice)})`, detail: `Vượt ngưỡng cảnh báo ${cfg.anomalyThreshold}% đã thiết lập trong Cấu hình Admin.` });
+        }
+        // Quy tắc 4: Dự kiến vượt hạn mức tín dụng B2B
+        const projectedDebt = cust.currentDebt + totals.grandTotal;
+        if (projectedDebt > cust.creditLimit) {
+          findings.push({ level: 'danger', title: `Vượt hạn mức tín dụng khách hàng (+${IP.Fmt.vnd(projectedDebt - cust.creditLimit)})`, detail: `Dư nợ sau phát hành là ${IP.Fmt.vnd(projectedDebt)} / Hạn mức ${IP.Fmt.vnd(cust.creditLimit)}.` });
+        }
+        return { findings, applyFix };
+      }
+    };
+
+    // 4. STATE FORM ĐỘNG & RENDER GIAO DIỆN
+    const cfg = getSettings();
+    let draft = {
+      invoiceNumber: `${cfg.prefix}-2026-${String(cfg.nextNumber).padStart(4, '0')}`,
+      customerId: 'c1',
+      issueDate: '2026-10-24',
+      dueDate: '2026-10-26', // Cố tình để hạn 2 ngày để demo AI-1 bắt lỗi ngay trên video
+      items: [
+        { desc: 'Bản quyền nền tảng quản trị ERP Cloud (12 tháng)', qty: 1, price: 120000000, discountPct: 0, vatRate: 0 },
+        { desc: 'Dịch vụ tích hợp hóa đơn điện tử 1C26TAA & Đào tạo', qty: 2, price: 25000000, discountPct: 5, vatRate: cfg.defaultVat }
+      ]
+    };
+    let lastAiResult = null;
+
+    function toast(title, msg, type = 'success') {
+      const el = document.createElement('div');
+      el.className = `alert alert-${type} shadow border-0 py-2 px-3 mb-2`;
+      el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+      document.getElementById('ip-toast-box').appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function renderForm() {
+      const root = document.getElementById('main-content');
+      const cust = CUSTOMERS.find((c) => c.id === draft.customerId);
+      const totals = IP.Calc.computeTotals(draft.items);
+      const projected = cust.currentDebt + totals.grandTotal;
+
+      root.innerHTML = `
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="ip-card mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Thông tin Hóa đơn GTGT · Ký hiệu <span class="badge bg-primary-subtle text-primary">1C26TAA</span></h5>
+                <span class="ip-num fw-bold text-primary fs-5">${draft.invoiceNumber}</span>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Khách hàng đối tác B2B</label>
+                  <select id="f-cust" class="form-select">
+                    ${CUSTOMERS.map((c) => `<option value="${c.id}" ${c.id === draft.customerId ? 'selected' : ''}>${c.name} (Hạn mức: ${IP.Fmt.vnd(c.creditLimit)})</option>`).join('')}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Ngày phát hành</label>
+                  <input type="date" id="f-issue" class="form-control ip-num" value="${draft.issueDate}">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Hạn thanh toán</label>
+                  <input type="date" id="f-due" class="form-control ip-num" value="${draft.dueDate}">
+                </div>
+              </div>
+
+              <h6 class="fw-bold mt-4 mb-2">Chi tiết hàng hóa, dịch vụ</h6>
+              <table class="table align-middle">
+                <thead><tr><th>Diễn giải hàng hóa / dịch vụ</th><th style="width:85px">SL</th><th style="width:140px">Đơn giá (₫)</th><th style="width:90px">CK (%)</th><th style="width:105px">Thuế GTGT</th><th class="text-end">Thành tiền</th><th></th></tr></thead>
+                <tbody>
+                  ${draft.items.map((it, idx) => {
+                    const lineNet = Math.round(it.qty * it.price * (1 - it.discountPct / 100));
+                    return `<tr>
+                      <td><input class="form-control form-control-sm" data-idx="${idx}" data-field="desc" value="${it.desc}"></td>
+                      <td><input type="number" class="form-control form-control-sm ip-num" data-idx="${idx}" data-field="qty" value="${it.qty}" min="1"></td>
+                      <td><input type="number" class="form-control form-control-sm ip-num" data-idx="${idx}" data-field="price" value="${it.price}" step="500000"></td>
+                      <td><input type="number" class="form-control form-control-sm ip-num" data-idx="${idx}" data-field="discountPct" value="${it.discountPct}" min="0" max="100"></td>
+                      <td><select class="form-select form-select-sm" data-idx="${idx}" data-field="vatRate">
+                        ${[0, 5, 8, 10].map((v) => `<option value="${v}" ${Number(it.vatRate) === v ? 'selected' : ''}>${v}%</option>`).join('')}
+                      </select></td>
+                      <td class="ip-num text-end fw-semibold">${IP.Fmt.vnd(lineNet)}</td>
+                      <td><button class="btn btn-sm text-danger" data-del="${idx}"><i class="bi bi-trash"></i></button></td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+              <button class="btn btn-sm btn-outline-primary mb-3" id="btn-add-line"><i class="bi bi-plus-circle"></i> Thêm dòng hàng hóa</button>
+
+              <div class="p-3 rounded bg-light border d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="small">
+                  Dư nợ hiện tại: <strong>${IP.Fmt.vnd(cust.currentDebt)}</strong> · Sau phát hành: <strong class="${projected > cust.creditLimit ? 'text-danger' : 'text-success'}">${IP.Fmt.vnd(projected)}</strong> / Hạn mức ${IP.Fmt.vnd(cust.creditLimit)}
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted">Cộng tiền hàng: ${IP.Fmt.vnd(totals.subtotal)} | Chiết khấu: -${IP.Fmt.vnd(totals.discountTotal)} | Thuế GTGT: +${IP.Fmt.vnd(totals.vatTotal)}</div>
+                  <div class="fs-5 fw-bold text-primary ip-num">Tổng thanh toán: ${IP.Fmt.vnd(totals.grandTotal)}</div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button class="btn btn-primary" id="btn-publish"><i class="bi bi-send-check"></i> Phát hành Hóa đơn (Lưu vào Sổ)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="ai-panel">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success"><i class="bi bi-stars"></i> Trợ lý AI-1 · Kiểm tra Bất thường</span>
+                <span class="small text-muted">Ngưỡng: ${cfg.anomalyThreshold}%</span>
+              </div>
+              ${!cfg.aiAnomaly ? `<div class="alert alert-secondary small mb-0">Trợ lý AI-1 đang tắt trong trang Cấu hình hóa đơn (Admin).</div>` : `
+                <p class="small text-muted mb-2">Rà soát tự động kỳ hạn thanh toán, thuế suất GTGT, biến động giá trị và hạn mức tín dụng trước khi phát hành.</p>
+                <button class="btn btn-sm btn-success w-100 mb-3" id="btn-run-ai"><i class="bi bi-cpu"></i> Chạy AI-1 Kiểm tra Bất thường</button>
+                ${lastAiResult ? `
+                  <div class="mb-2">
+                    ${lastAiResult.findings.length === 0 ? `<div class="alert alert-success py-2 small">Hóa đơn hợp lệ 100%, không phát hiện bất thường!</div>` :
+                      lastAiResult.findings.map((f) => `<div class="alert alert-${f.level} py-2 px-3 small mb-2"><strong>${f.title}</strong><div>${f.detail}</div></div>`).join('')}
+                  </div>
+                  ${(lastAiResult.applyFix.dueDate || lastAiResult.applyFix.vatRate !== undefined) ? `
+                    <button class="btn btn-sm btn-warning fw-bold w-100" id="btn-apply-fix"><i class="bi bi-magic"></i> Áp dụng gợi ý sửa lỗi an toàn (1-Click)</button>
+                  ` : ''}
+                ` : ''}
+              `}
+            </div>
+          </div>
+        </div>`;
+
+      // Sự kiện cập nhật form & chạy AI-1
+      root.querySelector('#f-cust').addEventListener('change', (e) => { draft.customerId = e.target.value; renderForm(); });
+      root.querySelector('#f-issue').addEventListener('change', (e) => { draft.issueDate = e.target.value; renderForm(); });
+      root.querySelector('#f-due').addEventListener('change', (e) => { draft.dueDate = e.target.value; renderForm(); });
+      root.querySelectorAll('[data-field]').forEach((inp) => inp.addEventListener('change', () => {
+        const it = draft.items[inp.dataset.idx];
+        it[inp.dataset.field] = inp.dataset.field === 'desc' ? inp.value : Number(inp.value);
+        renderForm();
+      }));
+      root.querySelectorAll('[data-del]').forEach((btn) => btn.addEventListener('click', () => {
+        if (draft.items.length > 1) { draft.items.splice(Number(btn.dataset.del), 1); renderForm(); }
+      }));
+      root.querySelector('#btn-add-line').addEventListener('click', () => {
+        draft.items.push({ desc: 'Dịch vụ bảo trì kỹ thuật định kỳ', qty: 1, price: 15000000, discountPct: 0, vatRate: cfg.defaultVat });
+        renderForm();
+      });
+      const aiBtn = root.querySelector('#btn-run-ai');
+      if (aiBtn) aiBtn.addEventListener('click', () => {
+        lastAiResult = IP.AI.checkInvoiceAnomalies(draft, cust, cfg);
+        renderForm();
+        toast('AI-1 đã hoàn tất kiểm tra', `Phát hiện ${lastAiResult.findings.length} điểm cần lưu ý.`, 'info');
+      });
+      const fixBtn = root.querySelector('#btn-apply-fix');
+      if (fixBtn) fixBtn.addEventListener('click', () => {
+        if (lastAiResult.applyFix.dueDate) draft.dueDate = lastAiResult.applyFix.dueDate;
+        if (lastAiResult.applyFix.vatRate !== undefined) draft.items.forEach((i) => i.vatRate = lastAiResult.applyFix.vatRate);
+        lastAiResult = IP.AI.checkInvoiceAnomalies(draft, cust, cfg);
+        renderForm();
+        toast('Đã áp dụng gợi ý AI-1', 'Ngày đáo hạn và thuế suất GTGT đã đưa về mức chuẩn hợp đồng.');
+      });
+      root.querySelector('#btn-publish').addEventListener('click', () => {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const st = raw ? JSON.parse(raw) : { invoices: [], bankTx: [] };
+        st.invoices.unshift({ id: 'inv_' + Date.now(), invoiceNumber: draft.invoiceNumber, symbol: '1C26TAA', customerName: cust.name, issueDate: draft.issueDate, dueDate: draft.dueDate, grandTotal: totals.grandTotal, paidAmount: 0, status: 'pending' });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+        toast('Phát hành hóa đơn thành công', `Đã lưu ${draft.invoiceNumber} (${IP.Fmt.vnd(totals.grandTotal)}) vào Sổ Hóa đơn.`);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderForm);
+  })(window);
+  </script>
+</body>
+</html>
