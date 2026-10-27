@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV2 · VIDEO 1 (TRANG 1 - KINH DOANH): SỔ CÔNG NỢ KHÁCH HÀNG, TUỔI NỢ & IN A4
+     Kiến trúc chuẩn InvoicePilot: IIFE Namespace window.IP (Fmt, Calc, DB, UI)
+     ========================================================================= -->
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV2 · Trang 1 — Sổ Công nợ Khách hàng, Thanh Tuổi nợ & In A4 | InvoicePilot</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ip-bg: #F7F6F2;
+      --ip-surface: #FFFFFF;
+      --ip-sidebar: #0F1F1C;
+      --ip-primary: #0B5D50;
+      --ip-accent: #E8B44A;
+      --ip-border: #E4E2DC;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--ip-bg);
+      color: #14201D;
+      margin: 0;
+    }
+
+    .ip-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .ip-sidebar {
+      width: 250px;
+      background: var(--ip-sidebar);
+      color: #EAF2EF;
+      padding: 1.25rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .ip-brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .ip-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(234, 242, 239, 0.75);
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .ip-nav-link:hover,
+    .ip-nav-link.active {
+      background: rgba(232, 180, 74, 0.16);
+      color: var(--ip-accent);
+      font-weight: 600;
+    }
+
+    .ip-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .ip-topbar {
+      height: 60px;
+      background: var(--ip-surface);
+      border-bottom: 1px solid var(--ip-border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ip-content {
+      padding: 1.5rem;
+      max-width: 1360px;
+    }
+
+    .ip-card {
+      background: var(--ip-surface);
+      border: 1px solid var(--ip-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .ip-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Thanh phân bổ tuổi nợ 4 tầng (0-30, 31-60, 61-90, >90 ngày) */
+    .sal-aging-bar {
+      display: flex;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #ECEAE3;
+      min-width: 160px;
+    }
+
+    .sal-aging-seg.b0 {
+      background: #1E7E5A;
+    }
+
+    .sal-aging-seg.b30 {
+      background: #D9822B;
+    }
+
+    .sal-aging-seg.b60 {
+      background: #E05A2B;
+    }
+
+    .sal-aging-seg.b90 {
+      background: #C83E3B;
+    }
+
+    #ip-toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 3000;
+    }
+
+    @media print {
+
+      .ip-sidebar,
+      .ip-topbar,
+      .no-print {
+        display: none !important;
+      }
+
+      .ip-content {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+
+<body data-page="sales-customer-balance" data-roles="sales">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV2 · Phân hệ Kinh doanh &
+        Admin</div>
+      <a class="ip-nav-link active" href="SV2-Trang1-sales-customer-balance.html"><i class="bi bi-building-check"></i>
+        1. Công nợ KH & Tuổi nợ</a>
+      <a class="ip-nav-link" href="SV2-Trang2-sales-payment-reminders.html"><i class="bi bi-envelope-paper"></i> 2. Nhắc
+        thanh toán & AI-2</a>
+      <a class="ip-nav-link" href="SV2-Trang3-admin-customer-management.html"><i class="bi bi-people-fill"></i> 3.
+        [Admin] Quản trị KH B2B</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Trần Minh Quân</strong><br><span class="text-info">Trưởng
+          phòng Kinh doanh B2B</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Kinh doanh B2B / <strong class="text-dark">Sổ Công nợ Khách hàng, Thanh Tuổi nợ 4
+            Tầng & Chi tiết HĐ In A4</strong></div>
+        <a class="btn btn-sm btn-primary" href="SV2-Trang2-sales-payment-reminders.html"><i class="bi bi-send"></i> Mở
+          Trình soạn Nhắc nợ AI-2</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+    /**
+     * @owner SV2
+     * @spec §8.2 Thuật toán Phân bổ Tuổi nợ 4 Tầng (Aging Bar), Hồ sơ 360° & Gia hạn có Kiểm toán
+     */
+    (function (window) {
+      'use strict';
+      const IP = (window.IP = window.IP || {});
+      const STORAGE_KEY = 'invoicepilot.sv2.demo.v1';
+
+      IP.Fmt = { vnd: (n) => Math.round(Number(n || 0)).toLocaleString('vi-VN') + ' ₫' };
+
+      // 1. DỮ LIỆU KHỞI TẠO KHÁCH HÀNG B2B & HÓA ĐƠN MỞ THEO CÁC NHÓM TUỔI NỢ
+      const SEED = {
+        customers: [
+          { id: 'c1', code: 'KH-001', name: 'Tập đoàn Bán lẻ Phú Thái', taxCode: '0101234567', creditLimit: 300000000, tier: 'VIP' },
+          { id: 'c2', code: 'KH-002', name: 'Công ty CP Logistics Sao Việt', taxCode: '0102345678', creditLimit: 200000000, tier: 'Tiêu chuẩn' },
+          { id: 'c3', code: 'KH-003', name: 'Công ty CP Dược phẩm Tâm Bình', taxCode: '0103456789', creditLimit: 350000000, tier: 'Cần theo dõi' }
+        ],
+        invoices: [
+          { id: 'i1', customerId: 'c1', invoiceNumber: 'IP-2026-0012', dueDate: '2026-10-20', daysOverdue: 14, remaining: 95000000, note: 'Khách hẹn chuyển khoản thứ Sáu tuần này.' },
+          { id: 'i2', customerId: 'c1', invoiceNumber: 'IP-2026-0008', dueDate: '2026-09-01', daysOverdue: 53, remaining: 110000000, note: 'Đang đối chiếu biên bản nghiệm thu đợt 2.' },
+          { id: 'i3', customerId: 'c2', invoiceNumber: 'IP-2026-0019', dueDate: '2026-10-15', daysOverdue: 19, remaining: 68000000, note: 'Trong hạn kiểm soát.' },
+          { id: 'i4', customerId: 'c3', invoiceNumber: 'IP-2026-0003', dueDate: '2026-07-10', daysOverdue: 106, remaining: 260000000, note: 'Quá hạn trên 90 ngày, cần đôn đốc gấp!' }
+        ]
+      };
+
+      function getState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED));
+      }
+      function saveState(st) { localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); }
+
+      // 2. THUẬT TOÁN TÍNH SỐ DƯ & PHÂN NHÓM TUỔI NỢ 4 TẦNG (IP.Calc.customerBalanceSummary)
+      IP.Calc = {
+        customerBalanceSummary: function (cust, invoices) {
+          const list = invoices.filter((i) => i.customerId === cust.id && i.remaining > 0);
+          const buckets = { b0_30: 0, b31_60: 0, b61_90: 0, b90_plus: 0 };
+          let total = 0, overdue = 0;
+          list.forEach((inv) => {
+            total += inv.remaining;
+            if (inv.daysOverdue > 0) overdue += inv.remaining;
+            if (inv.daysOverdue <= 30) buckets.b0_30 += inv.remaining;
+            else if (inv.daysOverdue <= 60) buckets.b31_60 += inv.remaining;
+            else if (inv.daysOverdue <= 90) buckets.b61_90 += inv.remaining;
+            else buckets.b90_plus += inv.remaining;
+          });
+          const utilPct = cust.creditLimit > 0 ? Math.round((total / cust.creditLimit) * 100) : 0;
+          return { total, overdue, buckets, utilPct, invoices: list };
+        },
+        // Hàm vẽ Thanh phân bổ tuổi nợ 4 màu theo tỷ lệ phần trăm
+        renderAgingBar: function (buckets, total) {
+          if (total <= 0) return '<div class="small text-muted">Không có dư nợ</div>';
+          const p = (v) => Math.max(0, Math.round((v / total) * 100));
+          return `
+          <div class="sal-aging-bar" title="0-30n: ${IP.Fmt.vnd(buckets.b0_30)} | 31-60n: ${IP.Fmt.vnd(buckets.b31_60)} | 61-90n: ${IP.Fmt.vnd(buckets.b61_90)} | >90n: ${IP.Fmt.vnd(buckets.b90_plus)}">
+            <div class="sal-aging-seg b0" style="width:${p(buckets.b0_30)}%"></div>
+            <div class="sal-aging-seg b30" style="width:${p(buckets.b31_60)}%"></div>
+            <div class="sal-aging-seg b60" style="width:${p(buckets.b61_90)}%"></div>
+            <div class="sal-aging-seg b90" style="width:${p(buckets.b90_plus)}%"></div>
+          </div>`;
+        }
+      };
+
+      let selectedCustId = 'c1';
+      let onlyOverdue = false;
+
+      function toast(title, msg, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `alert alert-${type} shadow border-0 py-2 px-3 mb-2`;
+        el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+        document.getElementById('ip-toast-box').appendChild(el);
+        setTimeout(() => el.remove(), 3200);
+      }
+
+      // 3. RENDER BẢNG CÔNG NỢ KHÁCH HÀNG & HỒ SƠ CHI TIẾT + BẢN IN A4
+      function renderPage() {
+        const st = getState();
+        const root = document.getElementById('main-content');
+        const summaries = st.customers.map((c) => Object.assign({}, c, IP.Calc.customerBalanceSummary(c, st.invoices)))
+          .filter((c) => !onlyOverdue || c.overdue > 0);
+        const activeCust = summaries.find((c) => c.id === selectedCustId) || summaries[0];
+
+        root.innerHTML = `
+        <div class="ip-card mb-4 no-print">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div>
+              <h5 class="fw-bold mb-0">Sổ Công nợ & Giám sát Hạn mức Tín dụng Doanh nghiệp B2B</h5>
+              <div class="small text-muted">Chú giải Thanh tuổi nợ: <span class="badge" style="background:#1E7E5A">0–30 ngày</span> <span class="badge" style="background:#D9822B">31–60 ngày</span> <span class="badge" style="background:#E05A2B">61–90 ngày</span> <span class="badge" style="background:#C83E3B">>90 ngày</span></div>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="chk-overdue" ${onlyOverdue ? 'checked' : ''}>
+              <label class="form-check-label small fw-semibold" for="chk-overdue">Chỉ hiện khách quá hạn</label>
+            </div>
+          </div>
+
+          <table class="table align-middle mb-0">
+            <thead><tr><th>Doanh nghiệp B2B</th><th>Hạng</th><th class="text-end">Tổng dư nợ</th><th class="text-end">Nợ quá hạn</th><th>Sử dụng Hạn mức</th><th>Phân bổ Tuổi nợ (Aging Bar)</th><th class="text-end">Thao tác</th></tr></thead>
+            <tbody>
+              ${summaries.map((c) => `
+                <tr class="${activeCust && activeCust.id === c.id ? 'table-active' : ''}">
+                  <td><div class="fw-bold">${c.name}</div><div class="small text-muted font-monospace">MST: ${c.taxCode}</div></td>
+                  <td><span class="badge bg-secondary-subtle text-secondary-emphasis">${c.tier}</span></td>
+                  <td class="ip-num text-end fw-bold">${IP.Fmt.vnd(c.total)}</td>
+                  <td class="ip-num text-end text-danger fw-semibold">${IP.Fmt.vnd(c.overdue)}</td>
+                  <td class="ip-num small">${c.utilPct}% / ${IP.Fmt.vnd(c.creditLimit)}</td>
+                  <td style="width:200px">${IP.Calc.renderAgingBar(c.buckets, c.total)}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary" data-select="${c.id}"><i class="bi bi-eye"></i> Hồ sơ 360°</button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${activeCust ? `
+        <div class="ip-card border-primary">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div>
+              <span class="badge bg-primary mb-1">Hồ sơ Công nợ 360° & Bản in Đối chiếu A4</span>
+              <h5 class="fw-bold mb-0">${activeCust.name} (MST: ${activeCust.taxCode})</h5>
+            </div>
+            <div class="d-flex gap-2 no-print">
+              <button class="btn btn-sm btn-outline-dark" id="btn-print-a4"><i class="bi bi-printer"></i> In Bảng kê / Xuất PDF A4</button>
+              <a class="btn btn-sm btn-warning fw-bold" href="SV2-Trang2-sales-payment-reminders.html"><i class="bi bi-stars"></i> Soạn Nhắc nợ AI-2</a>
+            </div>
+          </div>
+
+          <table class="table table-bordered align-middle">
+            <thead class="table-light"><tr><th>Mã Hóa đơn (1C26TAA)</th><th>Hạn thanh toán</th><th>Số ngày quá hạn</th><th class="text-end">Số tiền còn nợ</th><th>Ghi chú cam kết & Gia hạn có kiểm toán</th></tr></thead>
+            <tbody>
+              ${activeCust.invoices.map((inv) => `
+                <tr>
+                  <td class="ip-num fw-bold text-primary">${inv.invoiceNumber}</td>
+                  <td class="ip-num">${inv.dueDate}</td>
+                  <td><span class="badge ${inv.daysOverdue > 60 ? 'bg-danger' : 'bg-warning text-dark'}">${inv.daysOverdue} ngày</span></td>
+                  <td class="ip-num text-end fw-bold">${IP.Fmt.vnd(inv.remaining)}</td>
+                  <td>
+                    <div class="small mb-1">${inv.note}</div>
+                    <div class="input-group input-group-sm no-print">
+                      <input type="date" class="form-control ip-num" id="ext-date-${inv.id}" value="2026-11-15" style="max-width:135px">
+                      <input type="text" class="form-control" id="ext-reason-${inv.id}" placeholder="Nhập lý do gia hạn (tối thiểu 5 ký tự)...">
+                      <button class="btn btn-outline-primary" data-extend="${inv.id}">Gia hạn</button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}`;
+
+        root.querySelector('#chk-overdue').addEventListener('change', (e) => { onlyOverdue = e.target.checked; renderPage(); });
+        root.querySelectorAll('[data-select]').forEach((b) => b.addEventListener('click', () => { selectedCustId = b.dataset.select; renderPage(); }));
+        const prt = root.querySelector('#btn-print-a4');
+        if (prt) prt.addEventListener('click', () => window.print());
+
+        // Luật kiểm toán khi gia hạn ngày đáo hạn: bắt buộc nhập lý do >= 5 ký tự
+        root.querySelectorAll('[data-extend]').forEach((btn) => btn.addEventListener('click', () => {
+          const id = btn.dataset.extend;
+          const newDate = root.querySelector('#ext-date-' + id).value;
+          const reason = root.querySelector('#ext-reason-' + id).value.trim();
+          if (reason.length < 5) return toast('Từ chối gia hạn', 'Vui lòng nhập lý do kiểm toán tối thiểu 5 ký tự!', 'danger');
+          const inv = st.invoices.find((x) => x.id === id);
+          inv.dueDate = newDate;
+          inv.note = `[Đã gia hạn đến ${newDate}] Lý do: ${reason}`;
+          saveState(st);
+          renderPage();
+          toast('Đã cập nhật hạn thanh toán', `Hóa đơn ${inv.invoiceNumber} đã ghi nhật ký kiểm toán.`);
+        }));
+      }
+
+      document.addEventListener('DOMContentLoaded', renderPage);
+    })(window);
+  </script>
+</body>
+
+</html>

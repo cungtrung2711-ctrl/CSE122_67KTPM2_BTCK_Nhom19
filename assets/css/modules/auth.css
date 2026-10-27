@@ -1,0 +1,111 @@
+/**
+ * @owner SV1
+ * @spec §2, §3.4, §7.2, §7.3 Auth & Mandatory Login Pop-up Styles (Prefix: .auth-)
+ */
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  background-color: var(--ip-canvas);
+}
+
+.auth-brand-panel {
+  background-color: var(--ip-sidebar);
+  color: #EAF2EF;
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.auth-brand-logo svg {
+  width: 34px;
+  height: 34px;
+}
+
+.auth-benefit-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.auth-benefit-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 0.94rem;
+  color: var(--ip-sidebar-text);
+}
+.auth-benefit-list i {
+  color: var(--ip-accent);
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+.auth-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-modal);
+  padding: 32px;
+  box-shadow: var(--ip-shadow-card);
+}
+
+.auth-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.auth-role-btn,
+.auth-role-card {
+  text-align: left;
+  background: var(--ip-surface-raised);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-md);
+  padding: 12px 14px;
+  transition: all var(--ip-transition);
+}
+.auth-role-btn:hover,
+.auth-role-btn.active,
+.auth-role-card:hover,
+.auth-role-card.active {
+  border-color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+  box-shadow: var(--ip-shadow-sm);
+}
+
+@media (max-width: 991.98px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+  .auth-brand-panel {
+    padding: 28px 20px;
+  }
+}
+@media (max-width: 575.98px) {
+  .auth-role-grid {
+    grid-template-columns: 1fr;
+  }
+  .auth-card {
+    padding: 22px 18px;
+  }
+}
