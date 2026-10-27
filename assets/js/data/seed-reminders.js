@@ -1,0 +1,208 @@
+/**
+ * @owner SV2
+ * @spec §8.2, §10.1, §10.2 Seed 12 Payment Reminders spanning draft/scheduled/sent/failed/cancelled
+ */
+(function (window) {
+  'use strict';
+  const IP = window.IP;
+
+  IP.Seed.register('reminders', {
+    order: 60,
+    run: function (state, h) {
+      state.reminders = [
+        {
+          id: 'rem_001',
+          customerId: 'cus_01',
+          invoiceIds: ['inv_007', 'inv_011'],
+          channel: 'email',
+          tone: 'formal',
+          subject: 'Đề nghị thanh toán công nợ quá hạn hóa đơn IP-2026-0007, IP-2026-0011',
+          body: 'Kính gửi Ban Kế toán - Công ty Cổ phần Thực phẩm Á Châu,\n\nTheo sổ theo dõi công nợ, hai hóa đơn điện tử IP-2026-0007 và IP-2026-0011 (Ký hiệu: 1C26TAA) hiện đã quá hạn thanh toán. Đề nghị Quý đơn vị sắp xếp lịch ủy nhiệm chi về tài khoản Vietcombank 0011004567899.\n\nTrân trọng,\nTrần Minh Quân',
+          scheduledAt: h.addDays(-5) + 'T09:00:00.000Z',
+          sentAt: h.addDays(-5) + 'T09:01:00.000Z',
+          status: 'sent',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal',
+          createdAt: h.addDays(-5) + 'T08:45:00.000Z'
+        },
+        {
+          id: 'rem_002',
+          customerId: 'cus_02',
+          invoiceIds: ['inv_003', 'inv_005'],
+          channel: 'email',
+          tone: 'firm',
+          subject: 'Thông báo nhắc thanh toán lần 2 công nợ quá hạn - Bao bì Sao Phương Nam',
+          body: 'Kính gửi Anh Nguyễn Văn Khải - Công ty TNHH Bao bì Sao Phương Nam,\n\nKhoản công nợ thuộc hóa đơn IP-2026-0003 và IP-2026-0005 đã quá hạn trên 60 ngày. Rất mong Quý công ty xác nhận lịch thanh toán cụ thể trong tuần này để hoàn tất đối chiếu công nợ quý.\n\nTrân trọng,\nVũ Thị Mai Hương',
+          scheduledAt: h.addDays(-3) + 'T14:00:00.000Z',
+          sentAt: h.addDays(-3) + 'T14:00:00.000Z',
+          status: 'sent',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal2',
+          createdAt: h.addDays(-3) + 'T13:40:00.000Z'
+        },
+        {
+          id: 'rem_003',
+          customerId: 'cus_04',
+          invoiceIds: ['inv_002', 'inv_006'],
+          channel: 'email',
+          tone: 'formal',
+          subject: 'Đối chiếu và thanh toán hóa đơn quá hạn - Xây dựng Hòa Phát Đạt',
+          body: 'Kính gửi Anh Lương Thế Vinh,\n\nBộ phận quản lý công nợ gửi thông báo nhắc lịch thanh toán cho hóa đơn IP-2026-0002 và IP-2026-0006. Vui lòng phản hồi nếu cần đối chiếu lại biên bản nghiệm thu.\n\nTrân trọng,\nĐặng Quốc Khánh',
+          scheduledAt: h.addDays(-2) + 'T10:30:00.000Z',
+          sentAt: null,
+          status: 'failed',
+          failReason: 'Máy chủ thư điện tử phía đối tác tạm thời từ chối kết nối (SMTP Timeout 421)',
+          aiGenerated: true,
+          createdBy: 'usr_sal3',
+          createdAt: h.addDays(-2) + 'T10:15:00.000Z'
+        },
+        {
+          id: 'rem_004',
+          customerId: 'cus_12',
+          invoiceIds: ['inv_001', 'inv_004'],
+          channel: 'sms',
+          tone: 'firm',
+          subject: 'SMS nhắc công nợ Hạ tầng Thăng Long',
+          body: '[HOA BINH CORP] Kinh gui CTCP Dau tu Ha tang Thang Long, HD IP-2026-0001 va IP-2026-0004 da qua han tren 90 ngay. Vui long thanh toan qua VCB 0011004567899.',
+          scheduledAt: h.addDays(-1) + 'T16:00:00.000Z',
+          sentAt: null,
+          status: 'failed',
+          failReason: 'Cổng SMS Brandname doanh nghiệp báo nghẽn tuyến bản tin giờ cao điểm',
+          aiGenerated: false,
+          createdBy: 'usr_sal',
+          createdAt: h.addDays(-1) + 'T15:50:00.000Z'
+        },
+        {
+          id: 'rem_005',
+          customerId: 'cus_05',
+          invoiceIds: ['inv_023'],
+          channel: 'email',
+          tone: 'friendly',
+          subject: 'Thông báo hóa đơn sắp đến hạn thanh toán IP-2026-0023',
+          body: 'Kính gửi Chị Đỗ Hoàng Yến - Vận tải Biển Đông,\n\nChúng tôi xin thông báo phần còn lại của hóa đơn IP-2026-0023 sẽ đến hạn trong 2 ngày tới. Cảm ơn sự hợp tác đúng hạn của Quý công ty.\n\nTrân trọng,\nVũ Thị Mai Hương',
+          scheduledAt: h.addDays(1) + 'T09:00:00.000Z',
+          sentAt: null,
+          status: 'scheduled',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal2',
+          createdAt: h.addDays(0) + 'T08:00:00.000Z'
+        },
+        {
+          id: 'rem_006',
+          customerId: 'cus_07',
+          invoiceIds: ['inv_024'],
+          channel: 'email',
+          tone: 'friendly',
+          subject: 'Thông báo hóa đơn sắp đến hạn IP-2026-0024 - Sao Khuê Tech',
+          body: 'Kính gửi Chị Lê Bảo Ngọc,\n\nHóa đơn điện tử IP-2026-0024 sẽ đến hạn thanh toán trong 4 ngày tới. Quý khách vui lòng ghi rõ mã IP-2026-0024 khi lập ủy nhiệm chi.\n\nTrân trọng,\nĐặng Quốc Khánh',
+          scheduledAt: h.addDays(2) + 'T09:30:00.000Z',
+          sentAt: null,
+          status: 'scheduled',
+          failReason: null,
+          aiGenerated: false,
+          createdBy: 'usr_sal3',
+          createdAt: h.addDays(0) + 'T08:30:00.000Z'
+        },
+        {
+          id: 'rem_007',
+          customerId: 'cus_10',
+          invoiceIds: ['inv_008', 'inv_010'],
+          channel: 'email',
+          tone: 'formal',
+          subject: 'Dự thảo đối chiếu công nợ Bao bì Phú Mỹ (IP-2026-0008, IP-2026-0010)',
+          body: 'Kính gửi Anh Đinh Gia Huy - Công ty Cổ phần Nhựa & Bao bì Phú Mỹ,\n\nChúng tôi gửi kèm tổng hợp số dư còn phải thu của 2 hóa đơn IP-2026-0008 và IP-2026-0010 để Quý công ty đưa vào kế hoạch chi trả tuần này.\n\nTrân trọng,\nĐặng Quốc Khánh',
+          scheduledAt: null,
+          sentAt: null,
+          status: 'draft',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal3',
+          createdAt: h.addDays(-1) + 'T11:00:00.000Z'
+        },
+        {
+          id: 'rem_008',
+          customerId: 'cus_06',
+          invoiceIds: ['inv_009', 'inv_013'],
+          channel: 'email',
+          tone: 'friendly',
+          subject: 'Dự thảo đối chiếu lịch thanh toán May mặc Kinh Bắc',
+          body: 'Kính gửi Anh Ngô Minh Đức,\n\nXin gửi anh thông tin hai hóa đơn quá hạn IP-2026-0009 và IP-2026-0013. Anh vui lòng kiểm tra giúp lịch thanh toán dự kiến.\n\nTrân trọng,\nTrần Minh Quân',
+          scheduledAt: null,
+          sentAt: null,
+          status: 'draft',
+          failReason: null,
+          aiGenerated: false,
+          createdBy: 'usr_sal',
+          createdAt: h.addDays(0) + 'T07:45:00.000Z'
+        },
+        {
+          id: 'rem_009',
+          customerId: 'cus_08',
+          invoiceIds: ['inv_012', 'inv_018'],
+          channel: 'sms',
+          tone: 'formal',
+          subject: 'SMS nhắc thanh toán Thương mại Minh Tâm',
+          body: '[HOA BINH CORP] Kinh gui CTCP Thuong mai Minh Tam, vui long thanh toan hoa don qua han IP-2026-0012 va IP-2026-0018 qua VCB 0011004567899.',
+          scheduledAt: h.addDays(-4) + 'T10:00:00.000Z',
+          sentAt: h.addDays(-4) + 'T10:00:00.000Z',
+          status: 'sent',
+          failReason: null,
+          aiGenerated: false,
+          createdBy: 'usr_sal2',
+          createdAt: h.addDays(-4) + 'T09:50:00.000Z'
+        },
+        {
+          id: 'rem_010',
+          customerId: 'cus_03',
+          invoiceIds: ['inv_014', 'inv_017'],
+          channel: 'email',
+          tone: 'friendly',
+          subject: 'Thông báo nhắc lịch thanh toán Nội thất Gỗ Việt',
+          body: 'Kính gửi Chị Phan Thanh Hằng,\n\nChúng tôi xin thông báo hai hóa đơn IP-2026-0014 và IP-2026-0017 đã đến kỳ tất toán. Rất mong nhận được phản hồi từ chị.\n\nTrân trọng,\nTrần Minh Quân',
+          scheduledAt: h.addDays(-6) + 'T15:00:00.000Z',
+          sentAt: h.addDays(-6) + 'T15:01:00.000Z',
+          status: 'sent',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal',
+          createdAt: h.addDays(-6) + 'T14:30:00.000Z'
+        },
+        {
+          id: 'rem_011',
+          customerId: 'cus_09',
+          invoiceIds: ['inv_015', 'inv_020'],
+          channel: 'email',
+          tone: 'formal',
+          subject: 'Đề nghị tất toán công nợ Nông sản Đồng Xanh',
+          body: 'Kính gửi Chị Võ Thị Thu Thủy,\n\nHai hóa đơn IP-2026-0015 và IP-2026-0020 hiện đã quá hạn thanh toán. Quý công ty vui lòng kiểm tra và sắp xếp lịch chuyển khoản.\n\nTrân trọng,\nTrần Minh Quân',
+          scheduledAt: h.addDays(-7) + 'T09:00:00.000Z',
+          sentAt: h.addDays(-7) + 'T09:00:00.000Z',
+          status: 'sent',
+          failReason: null,
+          aiGenerated: true,
+          createdBy: 'usr_sal',
+          createdAt: h.addDays(-7) + 'T08:30:00.000Z'
+        },
+        {
+          id: 'rem_012',
+          customerId: 'cus_13',
+          invoiceIds: ['inv_019'],
+          channel: 'email',
+          tone: 'friendly',
+          subject: 'Nhắc thanh toán hóa đơn IP-2026-0019 (Đã hủy lịch vì khách báo đã lập UNC)',
+          body: 'Kính gửi Anh Hồ Anh Dũng, nhắc lịch thanh toán hóa đơn IP-2026-0019.',
+          scheduledAt: h.addDays(1) + 'T11:00:00.000Z',
+          sentAt: null,
+          status: 'cancelled',
+          failReason: null,
+          aiGenerated: false,
+          createdBy: 'usr_sal3',
+          createdAt: h.addDays(-2) + 'T09:00:00.000Z'
+        }
+      ];
+    }
+  });
+})(window);

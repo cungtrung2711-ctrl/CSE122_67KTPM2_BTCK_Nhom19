@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV1 · VIDEO 1 (TRANG 1 - KẾ TOÁN): DANH SÁCH HÓA ĐƠN & ĐỐI CHIẾU SAO KÊ
+     Kiến trúc chuẩn InvoicePilot: IIFE Namespace window.IP (DB, Calc, UI, Pages)
+     ========================================================================= -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV1 · Trang 1 — Danh sách Hóa đơn & Đối chiếu Ngân hàng | InvoicePilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ip-bg: #F7F6F2; --ip-surface: #FFFFFF; --ip-sidebar: #0F1F1C;
+      --ip-primary: #0B5D50; --ip-accent: #E8B44A; --ip-border: #E4E2DC;
+    }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--ip-bg); color: #14201D; margin: 0; }
+    .ip-shell { display: flex; min-height: 100vh; }
+    .ip-sidebar { width: 250px; background: var(--ip-sidebar); color: #EAF2EF; padding: 1.25rem 1rem; flex-shrink: 0; }
+    .ip-brand { font-weight: 700; font-size: 1.15rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .ip-nav-link { display: flex; align-items: center; gap: 10px; color: rgba(234,242,239,0.75); padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+    .ip-nav-link:hover, .ip-nav-link.active { background: rgba(232,180,74,0.16); color: var(--ip-accent); font-weight: 600; }
+    .ip-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ip-topbar { height: 60px; background: var(--ip-surface); border-bottom: 1px solid var(--ip-border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .ip-content { padding: 1.5rem; max-width: 1360px; }
+    .ip-card { background: var(--ip-surface); border: 1px solid var(--ip-border); border-radius: 12px; padding: 1.25rem; }
+    .ip-kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 1.35rem; font-weight: 700; }
+    .ip-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .acc-filter-chip { border: 1px solid var(--ip-border); background: #fff; border-radius: 20px; padding: 5px 14px; font-size: 0.84rem; cursor: pointer; }
+    .acc-filter-chip.active { background: var(--ip-primary); color: #fff; border-color: var(--ip-primary); font-weight: 600; }
+    #ip-toast-box { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+  </style>
+</head>
+<body data-page="accountant-invoice-list" data-roles="accountant">
+  <div class="ip-shell">
+    <!-- Sidebar chuẩn phân hệ Kế toán + Link sang Trang 3 Quản trị viên của SV1 -->
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV1 · Phân hệ Kế toán & Admin</div>
+      <a class="ip-nav-link active" href="SV1-Trang1-accountant-invoice-list.html"><i class="bi bi-receipt"></i> 1. Danh sách HĐ & Đối chiếu</a>
+      <a class="ip-nav-link" href="SV1-Trang2-accountant-invoice-form.html"><i class="bi bi-file-earmark-plus"></i> 2. Lập Hóa đơn & AI-1</a>
+      <a class="ip-nav-link" href="SV1-Trang3-admin-invoice-settings.html"><i class="bi bi-sliders"></i> 3. [Admin] Cấu hình HĐ & AI</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Nguyễn Thu Hà</strong><br><span class="text-warning">Kế toán trưởng công nợ</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Kế toán Công nợ / <strong class="text-dark">Danh sách Hóa đơn GTGT (1C26TAA) & Đối chiếu Ngân hàng</strong></div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-reset-demo"><i class="bi bi-arrow-counterclockwise"></i> Khôi phục dữ liệu mẫu</button>
+          <a class="btn btn-sm btn-success" href="SV1-Trang2-accountant-invoice-form.html"><i class="bi bi-plus-lg"></i> Tạo hóa đơn mới</a>
+        </div>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  /**
+   * @owner SV1
+   * @spec §8.1, §10.4 Kiến trúc Namespace window.IP (Fmt, Calc, DB, UI, Pages)
+   */
+  (function (window) {
+    'use strict';
+    const IP = (window.IP = window.IP || {});
+    const STORAGE_KEY = 'invoicepilot.sv1.demo.v1';
+    const TODAY = new Date().toISOString().slice(0, 10);
+
+    // 1. ĐỊNH DẠNG TIỀN TỆ VND & TRẠNG THÁI (IP.Fmt)
+    IP.Fmt = {
+      vnd: (n) => Math.round(Number(n || 0)).toLocaleString('vi-VN') + ' ₫',
+      statusBadge: (st) => ({
+        paid: '<span class="badge bg-success-subtle text-success-emphasis">Đã thanh toán</span>',
+        pending: '<span class="badge bg-warning-subtle text-warning-emphasis">Chờ thanh toán</span>',
+        overdue: '<span class="badge bg-danger-subtle text-danger-emphasis">Quá hạn</span>',
+        draft: '<span class="badge bg-secondary-subtle text-secondary-emphasis">Bản nháp</span>'
+      }[st] || st)
+    };
+
+    // 2. CÔNG THỨC NGHIỆP VỤ: DẪN XUẤT TRẠNG THÁI & CHẤM ĐIỂM ĐỐI CHIẾU 100 ĐIỂM (IP.Calc)
+    IP.Calc = {
+      deriveInvoiceStatus: function (inv) {
+        if (inv.status === 'draft' || inv.status === 'void') return inv.status;
+        const remaining = Math.max(0, inv.grandTotal - (inv.paidAmount || 0));
+        if (remaining === 0 && inv.grandTotal > 0) return 'paid';
+        if (inv.dueDate < TODAY && remaining > 0) return 'overdue';
+        return 'pending';
+      },
+      // Thuật toán chấm điểm khớp sao kê ngân hàng tự động (Thang 100 điểm)
+      scoreReconciliationMatch: function (tx, inv) {
+        let score = 0; const reasons = [];
+        const rem = Math.max(0, inv.grandTotal - inv.paidAmount);
+        if (tx.memo.toUpperCase().includes(inv.invoiceNumber.toUpperCase())) {
+          score += 55; reasons.push('Nội dung CK chứa mã ' + inv.invoiceNumber + ' (+55đ)');
+        }
+        if (Math.abs(tx.amount - rem) <= 1000) {
+          score += 30; reasons.push('Khớp 100% số dư còn lại (+30đ)');
+        }
+        if (tx.customerName === inv.customerName) {
+          score += 15; reasons.push('Cùng pháp nhân đối tác (+15đ)');
+        }
+        return { score: Math.min(100, score), reasons: reasons.join(' · ') };
+      }
+    };
+
+    // 3. TẦNG DỮ LIỆU LOCALSTORAGE (IP.DB)
+    const SEED_STATE = {
+      invoices: [
+        { id: 'inv_01', invoiceNumber: 'IP-2026-0001', symbol: '1C26TAA', customerName: 'Tập đoàn Bán lẻ Phú Thái', issueDate: '2026-09-10', dueDate: '2026-10-10', grandTotal: 165000000, paidAmount: 0, status: 'pending' },
+        { id: 'inv_02', invoiceNumber: 'IP-2026-0002', symbol: '1C26TAA', customerName: 'Công ty CP Logistics Sao Việt', issueDate: '2026-10-05', dueDate: '2026-11-05', grandTotal: 88000000, paidAmount: 30000000, status: 'pending' },
+        { id: 'inv_03', invoiceNumber: 'IP-2026-0003', symbol: '1C26TAA', customerName: 'Bệnh viện Quốc tế Minh Tâm', issueDate: '2026-09-20', dueDate: '2026-10-20', grandTotal: 132000000, paidAmount: 132000000, status: 'paid' },
+        { id: 'inv_04', invoiceNumber: 'IP-2026-0004', symbol: '1C26TAA', customerName: 'Công ty CP Dược phẩm Tâm Bình', issueDate: '2026-08-15', dueDate: '2026-09-15', grandTotal: 242000000, paidAmount: 42000000, status: 'pending' },
+        { id: 'inv_05', invoiceNumber: 'IP-2026-0005', symbol: '1C26TAA', customerName: 'Tập đoàn Xây dựng Hòa Phát Mới', issueDate: '2026-10-22', dueDate: '2026-11-22', grandTotal: 55000000, paidAmount: 0, status: 'draft' }
+      ],
+      bankTx: [
+        { id: 'tx_01', ref: 'VCB.998123', customerName: 'Tập đoàn Bán lẻ Phú Thái', amount: 165000000, memo: 'PHU THAI TT HOA DON IP-2026-0001 1C26TAA', status: 'pending' },
+        { id: 'tx_02', ref: 'VCB.998456', customerName: 'Công ty CP Logistics Sao Việt', amount: 58000000, memo: 'SAO VIET THANH TOAN DOT 2 IP-2026-0002', status: 'pending' }
+      ]
+    };
+
+    IP.DB = {
+      getState: function () {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED_STATE));
+      },
+      saveState: function (st) { localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); },
+      reset: function () { localStorage.removeItem(STORAGE_KEY); },
+      listInvoices: function (filter) {
+        const st = this.getState();
+        return st.invoices.map((inv) => {
+          const derived = IP.Calc.deriveInvoiceStatus(inv);
+          return Object.assign({}, inv, { status: derived, remainingAmount: Math.max(0, inv.grandTotal - inv.paidAmount) });
+        }).filter((inv) => {
+          if (filter.status && filter.status !== 'all' && inv.status !== filter.status) return false;
+          if (filter.q && !(inv.invoiceNumber + ' ' + inv.customerName).toLowerCase().includes(filter.q.toLowerCase())) return false;
+          return true;
+        });
+      },
+      recordPayment: function (invId, amount) {
+        const st = this.getState();
+        const inv = st.invoices.find((x) => x.id === invId);
+        if (!inv || amount <= 0) return { ok: false, message: 'Số tiền thu không hợp lệ.' };
+        const rem = Math.max(0, inv.grandTotal - inv.paidAmount);
+        if (amount > rem) return { ok: false, message: 'Số tiền thu vượt quá số dư còn lại (' + IP.Fmt.vnd(rem) + ').' };
+        inv.paidAmount += Number(amount);
+        inv.status = IP.Calc.deriveInvoiceStatus(inv);
+        this.saveState(st);
+        return { ok: true, data: inv };
+      },
+      reconcileTx: function (txId, invId) {
+        const st = this.getState();
+        const tx = st.bankTx.find((t) => t.id === txId);
+        const inv = st.invoices.find((i) => i.id === invId);
+        if (!tx || !inv) return { ok: false };
+        inv.paidAmount = Math.min(inv.grandTotal, inv.paidAmount + tx.amount);
+        inv.status = IP.Calc.deriveInvoiceStatus(inv);
+        tx.status = 'matched';
+        this.saveState(st);
+        return { ok: true, invoiceNumber: inv.invoiceNumber };
+      }
+    };
+
+    // 4. THÀNH PHẦN GIAO DIỆN TOAST & CSV (IP.UI)
+    IP.UI = {
+      toast: function (title, msg, type = 'success') {
+        const box = document.getElementById('ip-toast-box');
+        const el = document.createElement('div');
+        el.className = 'alert alert-' + type + ' shadow border-0 py-2 px-3 mb-2';
+        el.innerHTML = '<div class="fw-bold small">' + title + '</div><div class="small">' + msg + '</div>';
+        box.appendChild(el);
+        setTimeout(() => el.remove(), 3200);
+      },
+      exportCSV: function (rows) {
+        const header = 'Mã Hóa đơn,Ký hiệu,Khách hàng,Ngày phát hành,Hạn thanh toán,Tổng tiền,Đã thu,Còn lại,Trạng thái\n';
+        const body = rows.map((r) => [r.invoiceNumber, r.symbol, '"' + r.customerName + '"', r.issueDate, r.dueDate, r.grandTotal, r.paidAmount, r.remainingAmount, r.status].join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + header + body], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'so-hoa-don-gtgt-' + TODAY + '.csv';
+        a.click();
+      }
+    };
+
+    // 5. ĐĂNG KÝ CONTROLLER TRANG DANH SÁCH HÓA ĐƠN & ĐỐI CHIẾU (IP.Pages)
+    let filterState = { status: 'all', q: '' };
+
+    function renderPage() {
+      const root = document.getElementById('main-content');
+      const all = IP.DB.listInvoices({ status: 'all', q: '' });
+      const rows = IP.DB.listInvoices(filterState);
+      const pendingTx = IP.DB.getState().bankTx.filter((t) => t.status === 'pending');
+
+      const totalIssued = all.reduce((s, i) => s + i.grandTotal, 0);
+      const totalPaid = all.reduce((s, i) => s + i.paidAmount, 0);
+      const totalOverdue = all.filter((i) => i.status === 'overdue').reduce((s, i) => s + i.remainingAmount, 0);
+
+      root.innerHTML = `
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><div class="ip-card"><div class="small text-muted">Tổng giá trị phát hành (${all.length} HĐ)</div><div class="ip-kpi-val text-primary">${IP.Fmt.vnd(totalIssued)}</div></div></div>
+          <div class="col-md-4"><div class="ip-card"><div class="small text-muted">Đã thu thực tế (Confirmed)</div><div class="ip-kpi-val text-success">${IP.Fmt.vnd(totalPaid)}</div></div></div>
+          <div class="col-md-4"><div class="ip-card"><div class="small text-muted">Công nợ quá hạn cần đôn đốc</div><div class="ip-kpi-val text-danger">${IP.Fmt.vnd(totalOverdue)}</div></div></div>
+        </div>
+
+        <div class="ip-card mb-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              ${[['all', 'Tất cả'], ['overdue', 'Quá hạn'], ['pending', 'Chờ thanh toán'], ['paid', 'Đã thanh toán'], ['draft', 'Bản nháp']].map(([k, label]) =>
+                `<button class="acc-filter-chip ${filterState.status === k ? 'active' : ''}" data-filter="${k}">${label}</button>`
+              ).join('')}
+            </div>
+            <div class="d-flex gap-2">
+              <input id="inp-search" class="form-control form-control-sm" placeholder="Tìm mã HĐ, tên khách hàng..." value="${filterState.q}">
+              <button class="btn btn-sm btn-outline-primary text-nowrap" id="btn-csv"><i class="bi bi-download"></i> Xuất CSV</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table align-middle mb-0">
+              <thead><tr><th>Mã HĐ (1C26TAA)</th><th>Khách hàng B2B</th><th>Hạn TT</th><th class="text-end">Tổng tiền</th><th class="text-end">Đã thu</th><th class="text-end">Còn lại</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+              <tbody>
+                ${rows.map((r) => `
+                  <tr>
+                    <td class="ip-num fw-bold text-primary">${r.invoiceNumber}</td>
+                    <td class="fw-semibold">${r.customerName}</td>
+                    <td class="ip-num small">${r.dueDate}</td>
+                    <td class="ip-num text-end">${IP.Fmt.vnd(r.grandTotal)}</td>
+                    <td class="ip-num text-end text-success">${IP.Fmt.vnd(r.paidAmount)}</td>
+                    <td class="ip-num text-end fw-bold">${IP.Fmt.vnd(r.remainingAmount)}</td>
+                    <td>${IP.Fmt.statusBadge(r.status)}</td>
+                    <td class="text-end">
+                      ${r.remainingAmount > 0 && r.status !== 'draft'
+                        ? `<button class="btn btn-sm btn-primary" data-pay-id="${r.id}" data-rem="${r.remainingAmount}"><i class="bi bi-cash-coin"></i> Thu tiền</button>`
+                        : `<span class="small text-muted">Hoàn tất</span>`}
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ip-card border-warning">
+          <h6 class="fw-bold mb-2"><i class="bi bi-arrow-left-right text-warning me-1"></i>Bàn Đối chiếu Sao kê Ngân hàng Tự động (${pendingTx.length} giao dịch chờ khớp)</h6>
+          ${pendingTx.length === 0 ? '<div class="small text-success">Toàn bộ giao dịch sao kê Vietcombank trong ngày đã được khớp hoàn tất!</div>' : pendingTx.map((tx) => {
+            const openInvs = all.filter((i) => i.remainingAmount > 0);
+            const best = openInvs.map((inv) => ({ inv, match: IP.Calc.scoreReconciliationMatch(tx, inv) })).sort((a, b) => b.match.score - a.match.score)[0];
+            return `<div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div>
+                <div class="fw-bold small">${tx.ref} · ${tx.customerName} · <span class="text-success ip-num">+${IP.Fmt.vnd(tx.amount)}</span></div>
+                <div class="small text-muted font-monospace">Nội dung CK: "${tx.memo}"</div>
+                ${best ? `<div class="small text-primary mt-1"><i class="bi bi-magic"></i> Gợi ý khớp <strong>${best.inv.invoiceNumber}</strong> — Điểm khớp: <span class="badge bg-success">${best.match.score}/100</span> (${best.match.reasons})</div>` : ''}
+              </div>
+              ${best ? `<button class="btn btn-sm btn-warning fw-bold" data-match-tx="${tx.id}" data-match-inv="${best.inv.invoiceNumber}" data-inv-id="${best.inv.id}"><i class="bi bi-check2-all"></i> Khớp lệnh ngay</button>` : ''}
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      // Gắn sự kiện bộ lọc, xuất CSV, thu tiền & đối chiếu sao kê
+      root.querySelectorAll('[data-filter]').forEach((btn) => btn.addEventListener('click', () => { filterState.status = btn.dataset.filter; renderPage(); }));
+      root.querySelector('#inp-search').addEventListener('input', (e) => { filterState.q = e.target.value; renderPage(); });
+      root.querySelector('#btn-csv').addEventListener('click', () => { IP.UI.exportCSV(rows); IP.UI.toast('Đã xuất CSV', 'Bảng kê hóa đơn chuẩn UTF-8 đã tải xuống.'); });
+      root.querySelectorAll('[data-pay-id]').forEach((btn) => btn.addEventListener('click', () => {
+        const res = IP.DB.recordPayment(btn.dataset.payId, Number(btn.dataset.rem));
+        if (res.ok) { IP.UI.toast('Đã ghi nhận thu tiền', 'Hóa đơn ' + res.data.invoiceNumber + ' đã cập nhật trạng thái thực thu.'); renderPage(); }
+      }));
+      root.querySelectorAll('[data-match-tx]').forEach((btn) => btn.addEventListener('click', () => {
+        const res = IP.DB.reconcileTx(btn.dataset.matchTx, btn.dataset.invId);
+        if (res.ok) { IP.UI.toast('Đối chiếu sao kê thành công (100/100 điểm)', 'Đã khớp tiền vào hóa đơn ' + res.invoiceNumber); renderPage(); }
+      }));
+    }
+
+    document.getElementById('btn-reset-demo').addEventListener('click', () => { IP.DB.reset(); renderPage(); IP.UI.toast('Đã khôi phục dữ liệu mẫu', 'Sẵn sàng quay demo.'); });
+    document.addEventListener('DOMContentLoaded', renderPage);
+  })(window);
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+/**
+ * @owner SV1
+ * @spec §2, §3.4, §8.1 Accountant Module Styles (Prefix: .acc-)
+ */
+.acc-bulk-bar {
+  background: var(--ip-primary-tint);
+  border: 1px solid var(--ip-primary);
+  border-radius: var(--ip-radius-md);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.acc-form-layout {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.acc-sticky-side {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.acc-line-item-row {
+  background: var(--ip-surface-raised);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.acc-recon-grid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.acc-tx-item {
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-md);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--ip-surface);
+  cursor: pointer;
+  transition: border-color var(--ip-transition), background-color var(--ip-transition);
+}
+.acc-tx-item:hover {
+  background: var(--ip-surface-raised);
+}
+.acc-tx-item.active {
+  border-color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+}
+
+.acc-match-card {
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-md);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--ip-surface);
+  cursor: pointer;
+}
+.acc-match-card.selected {
+  border-color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+}
+
+@media (max-width: 991.98px) {
+  .acc-form-layout,
+  .acc-recon-grid {
+    grid-template-columns: 1fr;
+  }
+  .acc-sticky-side {
+    position: static;
+  }
+}

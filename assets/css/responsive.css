@@ -1,0 +1,213 @@
+/**
+ * @owner CORE
+ * @spec §3.3, §11 Responsive Breakpoints (1440 / 1280 / 1024 / 768 / 390px)
+ */
+
+@media (max-width: 1279.98px) {
+  .ip-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .ip-content {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .ip-sidebar {
+    transform: translateX(-100%);
+  }
+  .ip-sidebar.show {
+    transform: translateX(0);
+  }
+  .ip-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1030;
+    display: none;
+  }
+  .ip-sidebar-backdrop.show {
+    display: block;
+  }
+  .ip-main-wrap {
+    margin-left: 0;
+  }
+  .ip-topbar {
+    padding: 0 16px;
+  }
+  .ip-content {
+    padding: 18px 16px;
+  }
+  .ip-icon-btn,
+  .btn {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .ip-kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  h1, .ip-h1 {
+    font-size: 1.45rem;
+  }
+  .ip-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ip-page-actions {
+    width: 100%;
+  }
+  .ip-page-actions .btn {
+    flex: 1;
+  }
+
+  /* Responsive table to card list under 768px (§3.3) */
+  .ip-table-responsive-cards thead {
+    display: none;
+  }
+  .ip-table-responsive-cards,
+  .ip-table-responsive-cards tbody,
+  .ip-table-responsive-cards tr,
+  .ip-table-responsive-cards td {
+    display: block;
+    width: 100%;
+  }
+  .ip-table-responsive-cards tbody tr {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ip-border);
+  }
+  .ip-table-responsive-cards tbody td {
+    padding: 5px 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: right !important;
+    gap: 12px;
+  }
+  .ip-table-responsive-cards tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--ip-muted);
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .ip-drawer-wide,
+  .ip-drawer-xl {
+    width: 100vw !important;
+  }
+}
+
+/* ================================================================
+   InvoicePilot Responsive Hardening & AI Chatbot Styles
+   ================================================================ */
+html { scroll-padding-top: calc(var(--ip-topbar-height) + 12px); }
+body, #main-content, .ip-app-shell, .ip-main-wrap, .ip-content { min-width: 0; }
+.ip-app-shell { min-height: 100vh; min-height: 100dvh; }
+.ip-main-wrap { width: calc(100% - var(--ip-sidebar-width)); }
+.ip-content { width: 100%; padding: clamp(14px, 2.2vw, 30px); }
+.ip-page-header > *, .ip-card-header > *, .ip-topbar > *,
+.ip-topbar-left, .ip-topbar-right, .ip-page-actions,
+.acc-form-layout > *, .acc-recon-grid > *, .mgr-dashboard-grid > *,
+.adm-settings-layout > *, .row > [class*="col-"] { min-width: 0; }
+img, video, canvas, svg { max-width: 100%; }
+pre, code, .text-break, .ip-page-subtitle { overflow-wrap: anywhere; }
+.table-responsive, .ip-table-wrap { max-width: 100%; -webkit-overflow-scrolling: touch; }
+.ip-table-wrap { overflow-x: auto; overflow-y: hidden; }
+.ip-table-wrap > .table, .ip-table-wrap > .table-responsive > .table { min-width: 680px; }
+.ip-table-wrap .table.ip-table-responsive-cards { min-width: 0; }
+.table td, .table th { overflow-wrap: anywhere; }
+.form-control, .form-select, .btn { max-width: 100%; }
+button, input, select, textarea { touch-action: manipulation; }
+.ip-topbar { min-width: 0; }
+.ip-breadcrumb { min-width: 0; flex-wrap: wrap; row-gap: 2px; }
+.ip-kpi-value { overflow-wrap: anywhere; }
+.mgr-chart-box { min-width: 0; max-width: 100%; }
+.lnd-mockup-window, .ip-card, .card, .ip-filter-bar { min-width: 0; }
+.ip-money, .ip-currency, .table td.text-end, .table th.text-end {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.auth-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.auth-role-btn, .auth-role-card {
+  text-align: left;
+  background: var(--ip-surface-raised);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-md);
+  padding: 12px 14px;
+  transition: all var(--ip-transition);
+}
+.auth-role-btn:hover, .auth-role-btn.active,
+.auth-role-card:hover, .auth-role-card.active {
+  border-color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+  box-shadow: var(--ip-shadow-sm);
+}
+
+@media (max-width: 991.98px) {
+  .ip-main-wrap { width: 100%; }
+  .ip-sidebar { width: min(var(--ip-sidebar-width), 88vw); max-width: 320px; }
+  .ip-sidebar.show { box-shadow: var(--ip-shadow-drawer); }
+  .ip-sidebar-backdrop.show { cursor: pointer; }
+  .ip-topbar { gap: 10px; }
+  .ip-content { padding: 18px 16px; }
+  .ip-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767.98px) {
+  html, body { font-size: 14px; }
+  .ip-content { padding: 14px 12px; }
+  .ip-topbar { min-height: var(--ip-topbar-height); height: auto; padding: 8px 12px; }
+  .ip-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ip-kpi-card { padding: 14px; }
+  .ip-kpi-value { font-size: clamp(1rem, 3.6vw, 1.35rem); }
+  .auth-role-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 479.98px) {
+  .ip-kpi-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* AI chatbot floating window */
+.ip-chatbot-root { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 2080; font-family: var(--ip-font-sans); color: var(--ip-ink); }
+.ip-chatbot-toggle { position: relative; display: inline-flex; align-items: center; gap: 9px; min-height: 52px; padding: 0 18px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: var(--ip-sidebar); color: #fff; font: 700 .92rem var(--ip-font-sans); box-shadow: 0 10px 28px rgba(4,25,21,.27); cursor: pointer; transition: transform var(--ip-transition), box-shadow var(--ip-transition); }
+.ip-chatbot-toggle:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(4,25,21,.32); }
+.ip-chatbot-toggle-icon { font-size: 1.2rem; color: var(--ip-accent); }
+.ip-chatbot-toggle-pulse { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #47CD89; top: 8px; right: 10px; border: 2px solid var(--ip-sidebar); }
+.ip-chatbot-panel { width: min(420px, calc(100vw - 32px)); height: min(680px, calc(100dvh - 112px)); min-height: 390px; margin-bottom: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--ip-border); border-radius: 18px; background: var(--ip-surface); box-shadow: 0 18px 60px rgba(0,0,0,.22); }
+.ip-chatbot-panel[hidden] { display: none !important; }
+.ip-chatbot-head { display: flex; align-items: center; gap: 10px; padding: 15px; background: var(--ip-sidebar); color: #fff; flex-shrink: 0; }
+.ip-chatbot-brand-mark { width: 38px; height: 38px; display: grid; place-items: center; flex-shrink: 0; border-radius: 12px; background: rgba(232,180,74,.16); color: var(--ip-accent); font-size: 1.2rem; }
+.ip-chatbot-title-wrap { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: 2px; }
+.ip-chatbot-title-wrap strong { font-size: .98rem; }
+.ip-chatbot-title-wrap span { color: #BFD0CA; font-size: .73rem; }
+.ip-chatbot-status-dot { width: 6px; height: 6px; display: inline-block; margin-right: 4px; border-radius: 50%; background: #47CD89; }
+.ip-chatbot-head-btn { width: 34px; height: 34px; display: grid; place-items: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,.18); border-radius: 9px; background: rgba(255,255,255,.06); color: #fff; cursor: pointer; }
+.ip-chatbot-head-btn:hover { background: rgba(255,255,255,.15); }
+.ip-chatbot-context { padding: 8px 14px; border-bottom: 1px solid var(--ip-border); background: var(--ip-surface-raised); font-size: .74rem; color: var(--ip-muted); }
+.ip-chatbot-messages { flex: 1; min-height: 0; overflow-y: auto; padding: 15px 13px; display: flex; flex-direction: column; gap: 13px; overscroll-behavior: contain; }
+.ip-chat-message { display: flex; align-items: flex-start; gap: 8px; max-width: 100%; }
+.ip-chat-message.is-user { justify-content: flex-end; }
+.ip-chat-avatar { width: 28px; height: 28px; display: grid; place-items: center; flex-shrink: 0; border-radius: 9px; background: var(--ip-primary-tint); color: var(--ip-primary); font-size: .82rem; }
+.ip-chat-bubble { max-width: calc(100% - 36px); padding: 10px 12px; border: 1px solid var(--ip-border); border-radius: 4px 13px 13px 13px; background: var(--ip-surface-raised); color: var(--ip-ink); font-size: .84rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ip-chat-message.is-user .ip-chat-bubble { border-color: var(--ip-primary); border-radius: 13px 4px 13px 13px; background: var(--ip-primary); color: var(--ip-primary-ink); }
+.ip-chatbot-suggestions { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 13px 11px; }
+.ip-chatbot-suggestions button { max-width: 100%; padding: 6px 9px; border: 1px solid var(--ip-border-strong); border-radius: 999px; background: var(--ip-surface); color: var(--ip-ink); font: 500 .73rem var(--ip-font-sans); text-align: left; cursor: pointer; }
+.ip-chatbot-suggestions button:hover { border-color: var(--ip-primary); background: var(--ip-primary-tint); color: var(--ip-primary); }
+.ip-chatbot-composer { display: flex; align-items: flex-end; gap: 8px; padding: 10px; border-top: 1px solid var(--ip-border); background: var(--ip-surface); }
+.ip-chatbot-composer textarea { flex: 1; min-width: 0; max-height: 110px; resize: none; padding: 10px 11px; border: 1px solid var(--ip-border-strong); border-radius: 12px; outline: none; background: var(--ip-surface-raised); color: var(--ip-ink); font: 400 .85rem/1.45 var(--ip-font-sans); }
+.ip-chatbot-composer textarea:focus { border-color: var(--ip-primary); box-shadow: 0 0 0 3px var(--ip-primary-tint); }
+.ip-chatbot-composer button { width: 42px; height: 42px; display: grid; place-items: center; flex-shrink: 0; border: 0; border-radius: 12px; background: var(--ip-primary); color: #fff; cursor: pointer; }
+.ip-chatbot-composer button:disabled { opacity: .55; cursor: wait; }
+.ip-chatbot-foot { padding: 0 12px 10px; color: var(--ip-muted); font-size: .67rem; line-height: 1.4; }
+.ip-chatbot-typing { color: var(--ip-muted); font-style: italic; }

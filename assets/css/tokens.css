@@ -1,0 +1,143 @@
+/**
+ * @owner CORE
+ * @spec §3.2 Design Tokens
+ * Bảng biến thiết kế chuẩn cho InvoicePilot (Light & Dark Mode)
+ */
+
+:root,
+[data-theme="light"] {
+  /* Màu nền và bề mặt */
+  --ip-canvas: #F4F6F4;
+  --ip-surface: #FFFFFF;
+  --ip-surface-raised: #F8FAF9;
+  --ip-sidebar: #0A211D;
+  --ip-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --ip-sidebar-active: rgba(56, 179, 159, 0.16);
+  --ip-sidebar-text: #D7E5E1;
+  --ip-sidebar-muted: #8CA59E;
+
+  /* Màu chữ và đường viền */
+  --ip-ink: #152521;
+  --ip-muted: #5C6E68;
+  --ip-border: #DFE6E2;
+  --ip-border-strong: #C5D1CB;
+
+  /* Màu thương hiệu & trạng thái */
+  --ip-primary: #0B5D50;
+  --ip-primary-hover: #08483E;
+  --ip-primary-tint: #E7F3EF;
+  --ip-primary-ink: #FFFFFF;
+
+  --ip-accent: #E8B44A;
+  --ip-accent-tint: #FDF7E7;
+  --ip-accent-border: #F2D48C;
+  --ip-accent-ink: #7A520B;
+
+  --ip-danger: #B42318;
+  --ip-danger-tint: #FEF3F2;
+  --ip-danger-border: #FECDCA;
+
+  --ip-warning: #B54708;
+  --ip-warning-tint: #FFFAEB;
+  --ip-warning-border: #FEDF89;
+
+  --ip-success: #067647;
+  --ip-success-tint: #ECFDF3;
+  --ip-success-border: #ABEFC6;
+
+  --ip-info: #175CD3;
+  --ip-info-tint: #EFF8FF;
+  --ip-info-border: #B2DDFF;
+
+  /* Bảng màu biểu đồ */
+  --ip-chart-teal: #0E7A68;
+  --ip-chart-honey: #E8B44A;
+  --ip-chart-sage: #7FB5A8;
+  --ip-chart-coral: #E2765C;
+  --ip-chart-slate: #6B7C87;
+
+  /* Kiểu chữ */
+  --ip-font-sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ip-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Thang khoảng cách */
+  --ip-space-1: 4px;
+  --ip-space-2: 8px;
+  --ip-space-3: 12px;
+  --ip-space-4: 16px;
+  --ip-space-5: 20px;
+  --ip-space-6: 24px;
+  --ip-space-8: 32px;
+  --ip-space-10: 40px;
+  --ip-space-12: 48px;
+  --ip-space-16: 64px;
+
+  /* Bo góc & Đổ bóng */
+  --ip-radius-sm: 8px;
+  --ip-radius-md: 10px;
+  --ip-radius-card: 14px;
+  --ip-radius-modal: 16px;
+  --ip-radius-pill: 999px;
+
+  --ip-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --ip-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.05);
+  --ip-shadow-drawer: -8px 0 32px rgba(16, 24, 40, 0.14);
+
+  /* Kích thước bố cục */
+  --ip-sidebar-width: 264px;
+  --ip-topbar-height: 64px;
+  --ip-content-max: 1440px;
+  --ip-transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --ip-canvas: #0F1715;
+  --ip-surface: #16211E;
+  --ip-surface-raised: #1C2925;
+  --ip-sidebar: #071310;
+  --ip-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --ip-sidebar-active: rgba(56, 179, 159, 0.2);
+  --ip-sidebar-text: #EAF2EF;
+  --ip-sidebar-muted: #9FB2AB;
+
+  --ip-ink: #EAF2EF;
+  --ip-muted: #9FB2AB;
+  --ip-border: #2A3A35;
+  --ip-border-strong: #3B514A;
+
+  --ip-primary: #38B39F;
+  --ip-primary-hover: #4AC4B0;
+  --ip-primary-tint: #17352F;
+  --ip-primary-ink: #071310;
+
+  --ip-accent: #F0C56B;
+  --ip-accent-tint: #282214;
+  --ip-accent-border: #5E481A;
+  --ip-accent-ink: #F5D793;
+
+  --ip-danger: #F97066;
+  --ip-danger-tint: #2C1616;
+  --ip-danger-border: #632623;
+
+  --ip-warning: #FDB022;
+  --ip-warning-tint: #2B2011;
+  --ip-warning-border: #614313;
+
+  --ip-success: #47CD89;
+  --ip-success-tint: #12291F;
+  --ip-success-border: #1E543B;
+
+  --ip-info: #84ADFF;
+  --ip-info-tint: #142238;
+  --ip-info-border: #254475;
+
+  --ip-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --ip-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.35);
+  --ip-shadow-drawer: -8px 0 32px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ip-transition: 0ms;
+  }
+}

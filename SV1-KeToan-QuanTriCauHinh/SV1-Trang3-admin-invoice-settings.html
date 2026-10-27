@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV1 · VIDEO 3 (TRANG 3 - QUẢN TRỊ VIÊN): CẤU HÌNH HÓA ĐƠN, MẪU NHẮC & AI
+     Kiến trúc chuẩn InvoicePilot: IIFE Namespace window.IP (DB, UI, Pages)
+     ========================================================================= -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV1 · Trang 3 (Admin) — Cấu hình Hóa đơn, Đánh số & Công tắc AI | InvoicePilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --ip-bg: #F7F6F2; --ip-surface: #FFFFFF; --ip-sidebar: #0F1F1C; --ip-primary: #0B5D50; --ip-accent: #E8B44A; --ip-border: #E4E2DC; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--ip-bg); color: #14201D; margin: 0; }
+    .ip-shell { display: flex; min-height: 100vh; }
+    .ip-sidebar { width: 250px; background: var(--ip-sidebar); color: #EAF2EF; padding: 1.25rem 1rem; flex-shrink: 0; }
+    .ip-brand { font-weight: 700; font-size: 1.15rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .ip-nav-link { display: flex; align-items: center; gap: 10px; color: rgba(234,242,239,0.75); padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+    .ip-nav-link:hover, .ip-nav-link.active { background: rgba(232,180,74,0.16); color: var(--ip-accent); font-weight: 600; }
+    .ip-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ip-topbar { height: 60px; background: var(--ip-surface); border-bottom: 1px solid var(--ip-border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .ip-content { padding: 1.5rem; max-width: 1360px; }
+    .ip-card { background: var(--ip-surface); border: 1px solid var(--ip-border); border-radius: 12px; padding: 1.25rem; }
+    .adm-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.25rem; align-items: start; }
+    .adm-vtab { display: block; width: 100%; text-align: left; padding: 10px 14px; border: 1px solid var(--ip-border); background: #fff; border-radius: 8px; margin-bottom: 8px; font-weight: 500; }
+    .adm-vtab.active { background: var(--ip-primary); color: #fff; border-color: var(--ip-primary); font-weight: 600; }
+    .adm-savebar { background: var(--ip-sidebar); color: #fff; padding: 12px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    #ip-toast-box { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+  </style>
+</head>
+<body data-page="admin-invoice-settings" data-roles="admin">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV1 · Phân hệ Kế toán & Admin</div>
+      <a class="ip-nav-link" href="SV1-Trang1-accountant-invoice-list.html"><i class="bi bi-receipt"></i> 1. Danh sách HĐ & Đối chiếu</a>
+      <a class="ip-nav-link" href="SV1-Trang2-accountant-invoice-form.html"><i class="bi bi-file-earmark-plus"></i> 2. Lập Hóa đơn & AI-1</a>
+      <a class="ip-nav-link active" href="SV1-Trang3-admin-invoice-settings.html"><i class="bi bi-sliders"></i> 3. [Admin] Cấu hình HĐ & AI</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Phạm Gia Bảo</strong><br><span class="badge bg-danger-subtle text-danger-emphasis mt-1">Quản trị viên Hệ thống</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Quản trị viên (Phần của SV1) / <strong class="text-dark">Cấu hình Hóa đơn, Đánh số Tự động, Mẫu nhắc & Công tắc AI</strong></div>
+        <a class="btn btn-sm btn-outline-primary" href="SV1-Trang2-accountant-invoice-form.html"><i class="bi bi-box-arrow-up-right"></i> Kiểm chứng bên Trang Lập HĐ</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+  /**
+   * @owner SV1 (Chia sẻ phân hệ Quản trị viên)
+   * @spec §8.4, §9 Cấu hình Pháp nhân, Quy tắc Đánh số Tự động, Mẫu nhắc & Công tắc AI
+   */
+  (function (window) {
+    'use strict';
+    const IP = (window.IP = window.IP || {});
+    const SETTINGS_KEY = 'invoicepilot.sv1.settings.v1';
+
+    const DEFAULT_SETTINGS = {
+      companyName: 'Công ty Cổ phần Giải pháp Số hóa Hòa Bình',
+      taxCode: '0108923456',
+      bankName: 'Vietcombank - CN Sở Giao Dịch Hà Nội',
+      bankAccount: '0011004567899',
+      prefix: 'IP',
+      nextNumber: 6,
+      defaultTermDays: 30,
+      defaultVat: 10,
+      aiAnomaly: true,
+      aiReminder: true,
+      aiCashflow: true,
+      anomalyThreshold: 250,
+      templates: [
+        { id: 't1', name: 'Email nhắc lịch thanh toán định kỳ', channel: 'Email', tone: 'Thân thiện', isDefault: true, body: 'Kính gửi {ten_khach_hang}, hóa đơn {ma_hoa_don} trị giá {so_tien} sẽ đáo hạn ngày {han_thanh_toan}.' },
+        { id: 't2', name: 'SMS Brandname nhắc nợ quá hạn', channel: 'SMS', tone: 'Cứng rắn lịch sự', isDefault: true, body: '[HOA BINH CORP] Kinh gui {ten_khach_hang}, hoa don {ma_hoa_don} ({so_tien}) da qua han thanh toan.' }
+      ]
+    };
+
+    // 1. TẦNG DỮ LIỆU CẤU HÌNH & KIỂM TRA RÀNG BUỘC (IP.DB)
+    IP.DB = {
+      getSettings: function () {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+      },
+      nextCodePreview: function (cfg) {
+        return `${(cfg.prefix || 'IP').toUpperCase()}-2026-${String(cfg.nextNumber || 1).padStart(4, '0')}`;
+      },
+      saveSettings: function (cfg) {
+        if (!cfg.prefix || cfg.prefix.trim().length < 2 || cfg.prefix.trim().length > 6) {
+          return { ok: false, message: 'Tiền tố hóa đơn phải từ 2 đến 6 ký tự (VD: IP, HB).' };
+        }
+        if (Number(cfg.nextNumber) < 1) {
+          return { ok: false, message: 'Số thứ tự hóa đơn tiếp theo phải >= 1.' };
+        }
+        if (Number(cfg.anomalyThreshold) < 120 || Number(cfg.anomalyThreshold) > 1000) {
+          return { ok: false, message: 'Ngưỡng cảnh báo AI phải nằm trong khoảng 120% – 1000%.' };
+        }
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(cfg));
+        return { ok: true };
+      }
+    };
+
+    // 2. STATE 4 TAB DỌC & CỜ THEO DÕI THAY ĐỔI CHƯA LƯU (isDirty)
+    let currentTab = 'numbering';
+    let workingCfg = IP.DB.getSettings();
+    let isDirty = false;
+
+    function toast(title, msg, type = 'success') {
+      const el = document.createElement('div');
+      el.className = `alert alert-${type} shadow border-0 py-2 px-3 mb-2`;
+      el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+      document.getElementById('ip-toast-box').appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function renderSettings() {
+      const root = document.getElementById('main-content');
+      const previewCode = IP.DB.nextCodePreview(workingCfg);
+
+      let tabBody = '';
+      if (currentTab === 'company') {
+        tabBody = `
+          <h5 class="fw-bold mb-3">1. Thông tin Pháp nhân Phát hành & Tài khoản Ngân hàng</h5>
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label small fw-semibold">Tên doanh nghiệp</label><input class="form-control" data-field="companyName" value="${workingCfg.companyName}"></div>
+            <div class="col-md-4"><label class="form-label small fw-semibold">Mã số thuế</label><input class="form-control font-monospace" data-field="taxCode" value="${workingCfg.taxCode}"></div>
+            <div class="col-md-7"><label class="form-label small fw-semibold">Ngân hàng thụ hưởng</label><input class="form-control" data-field="bankName" value="${workingCfg.bankName}"></div>
+            <div class="col-md-5"><label class="form-label small fw-semibold">Số tài khoản</label><input class="form-control font-monospace" data-field="bankAccount" value="${workingCfg.bankAccount}"></div>
+          </div>`;
+      } else if (currentTab === 'numbering') {
+        tabBody = `
+          <h5 class="fw-bold mb-2">2. Quy tắc Đánh số Tự động & Mặc định Hóa đơn Mới</h5>
+          <div class="alert alert-info py-2 small mb-3">Thay đổi tại đây chỉ áp dụng cho <strong>hóa đơn lập mới</strong>, không làm thay đổi mã của các hóa đơn lịch sử đã phát hành.</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label small fw-semibold">Tiền tố hóa đơn (2–6 ký tự)</label><input class="form-control font-monospace" data-field="prefix" value="${workingCfg.prefix}"></div>
+            <div class="col-md-4"><label class="form-label small fw-semibold">Số thứ tự tiếp theo</label><input type="number" class="form-control font-monospace" data-field="nextNumber" value="${workingCfg.nextNumber}"></div>
+            <div class="col-md-4"><label class="form-label small fw-semibold">Xem trước mã tiếp theo</label><div class="form-control bg-light fw-bold font-monospace text-primary" id="preview-code">${previewCode}</div></div>
+            <div class="col-md-6"><label class="form-label small fw-semibold">Kỳ hạn thanh toán mặc định (ngày)</label><input type="number" class="form-control" data-field="defaultTermDays" value="${workingCfg.defaultTermDays}"></div>
+            <div class="col-md-6"><label class="form-label small fw-semibold">Thuế suất GTGT mặc định</label>
+              <select class="form-select" data-field="defaultVat">
+                ${[0, 5, 8, 10].map((v) => `<option value="${v}" ${Number(workingCfg.defaultVat) === v ? 'selected' : ''}>${v}%</option>`).join('')}
+              </select>
+            </div>
+          </div>`;
+      } else if (currentTab === 'templates') {
+        tabBody = `
+          <h5 class="fw-bold mb-2">3. Mẫu Nhắc Thanh toán & Bảo vệ Mẫu Mặc định</h5>
+          <div class="small text-muted mb-3">Biến động tự động thay thế: <code>{ten_khach_hang}</code>, <code>{ma_hoa_don}</code>, <code>{so_tien}</code>, <code>{han_thanh_toan}</code></div>
+          <table class="table align-middle">
+            <thead><tr><th>Tên mẫu nhắc</th><th>Kênh</th><th>Giọng điệu</th><th>Nội dung mẫu</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+            <tbody>
+              ${workingCfg.templates.map((t) => `
+                <tr>
+                  <td class="fw-semibold">${t.name}</td><td>${t.channel}</td><td>${t.tone}</td>
+                  <td class="small text-muted">${t.body}</td>
+                  <td>${t.isDefault ? '<span class="badge bg-success-subtle text-success-emphasis">Mặc định</span>' : 'Tùy chỉnh'}</td>
+                  <td class="text-end"><button class="btn btn-sm btn-outline-danger" data-del-tpl="${t.id}" ${t.isDefault ? 'disabled title="Không thể xóa mẫu mặc định của kênh"' : ''}><i class="bi bi-trash"></i> Bảo vệ</button></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } else {
+        tabBody = `
+          <h5 class="fw-bold mb-3">4. Công tắc Bật/Tắt Trợ lý AI & Ngưỡng Cảnh báo</h5>
+          <div class="list-group mb-3">
+            <label class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <div><div class="fw-bold">AI-1 · Kiểm tra Hóa đơn Bất thường (Phân hệ Kế toán)</div><div class="small text-muted">Khi tắt, màn hình Lập hóa đơn (Video 2) sẽ ẩn nút chạy AI-1 và cho phép nhập thủ công.</div></div>
+              <input class="form-check-input fs-4" type="checkbox" id="chk-ai1" ${workingCfg.aiAnomaly ? 'checked' : ''}>
+            </label>
+            <label class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <div><div class="fw-bold">AI-2 · Soạn Thông điệp Nhắc thanh toán (Phân hệ Kinh doanh)</div><div class="small text-muted">Tự động sinh bản nháp Email/SMS nhắc nợ theo 3 giọng điệu.</div></div>
+              <input class="form-check-input fs-4" type="checkbox" id="chk-ai2" ${workingCfg.aiReminder ? 'checked' : ''}>
+            </label>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Ngưỡng cảnh báo giá trị hóa đơn cao bất thường (%)</label>
+            <input type="number" class="form-control font-monospace" data-field="anomalyThreshold" value="${workingCfg.anomalyThreshold}">
+          </div>`;
+      }
+
+      root.innerHTML = `
+        <div class="adm-layout">
+          <nav>
+            ${[['company', 'bi-building', '1. Thông tin Pháp nhân'], ['numbering', 'bi-hash', '2. Hóa đơn & Đánh số'], ['templates', 'bi-envelope-paper', '3. Mẫu nhắc thanh toán'], ['ai', 'bi-stars', '4. Công tắc Trợ lý AI']].map(([k, ic, lb]) =>
+              `<button class="adm-vtab ${currentTab === k ? 'active' : ''}" data-tab="${k}"><i class="bi ${ic} me-2"></i>${lb}</button>`
+            ).join('')}
+          </nav>
+          <div>
+            <div class="ip-card">${tabBody}</div>
+            <div class="adm-savebar">
+              <div class="small">${isDirty ? '<span class="text-warning fw-bold"><i class="bi bi-exclamation-circle"></i> Bạn có thay đổi chưa lưu!</span>' : '<i class="bi bi-check2-circle text-success"></i> Cấu hình đã đồng bộ với toàn hệ thống'}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" id="btn-discard" ${!isDirty ? 'disabled' : ''}>Hoàn tác</button>
+                <button class="btn btn-sm btn-warning fw-bold" id="btn-save" ${!isDirty ? 'disabled' : ''}><i class="bi bi-check2-circle"></i> Lưu cấu hình</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      root.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { currentTab = b.dataset.tab; renderSettings(); }));
+      root.querySelectorAll('[data-field]').forEach((inp) => inp.addEventListener('input', () => {
+        workingCfg[inp.dataset.field] = inp.type === 'number' ? Number(inp.value) : inp.value;
+        isDirty = true;
+        const prev = root.querySelector('#preview-code');
+        if (prev) prev.textContent = IP.DB.nextCodePreview(workingCfg);
+        root.querySelector('#btn-save').disabled = false;
+        root.querySelector('#btn-discard').disabled = false;
+      }));
+      const chk1 = root.querySelector('#chk-ai1');
+      if (chk1) chk1.addEventListener('change', () => { workingCfg.aiAnomaly = chk1.checked; isDirty = true; renderSettings(); });
+      const chk2 = root.querySelector('#chk-ai2');
+      if (chk2) chk2.addEventListener('change', () => { workingCfg.aiReminder = chk2.checked; isDirty = true; renderSettings(); });
+      root.querySelector('#btn-discard').addEventListener('click', () => { workingCfg = IP.DB.getSettings(); isDirty = false; renderSettings(); toast('Đã hoàn tác', 'Khôi phục cấu hình đã lưu gần nhất.', 'info'); });
+      root.querySelector('#btn-save').addEventListener('click', () => {
+        const res = IP.DB.saveSettings(workingCfg);
+        if (!res.ok) return toast('Lỗi cấu hình', res.message, 'danger');
+        isDirty = false; renderSettings();
+        toast('Đã lưu cấu hình hệ thống', 'Mã hóa đơn tiếp theo: ' + IP.DB.nextCodePreview(workingCfg));
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderSettings);
+  })(window);
+  </script>
+</body>
+</html>
