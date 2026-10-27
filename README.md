@@ -303,4 +303,4 @@ git push origin dev
 
 ---
 
-© 2026 Nhóm InvoicePilot — Bài tập lớn môn Phát triển ứng dụng Web (CSE122), lớp 67KTPM.
+© 2026 Nhóm InvoicePilot — Bài tập lớn môn Phát triển ứng dụng Web (CSE122), lớp 67KTPM2.
