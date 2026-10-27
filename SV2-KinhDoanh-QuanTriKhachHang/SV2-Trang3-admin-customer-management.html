@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV2 · VIDEO 3 (TRANG 3 - QUẢN TRỊ VIÊN): QUẢN TRỊ DANH MỤC KHÁCH HÀNG B2B
+     Kiến trúc chuẩn InvoicePilot: Kiểm tra MST 10-13 số & Chặn lưu trữ khách còn nợ
+     ========================================================================= -->
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV2 · Trang 3 (Admin) — Quản trị Danh mục Khách hàng B2B | InvoicePilot</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ip-bg: #F7F6F2;
+      --ip-surface: #FFFFFF;
+      --ip-sidebar: #0F1F1C;
+      --ip-primary: #0B5D50;
+      --ip-accent: #E8B44A;
+      --ip-border: #E4E2DC;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--ip-bg);
+      color: #14201D;
+      margin: 0;
+    }
+
+    .ip-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .ip-sidebar {
+      width: 250px;
+      background: var(--ip-sidebar);
+      color: #EAF2EF;
+      padding: 1.25rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .ip-brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .ip-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(234, 242, 239, 0.75);
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .ip-nav-link:hover,
+    .ip-nav-link.active {
+      background: rgba(232, 180, 74, 0.16);
+      color: var(--ip-accent);
+      font-weight: 600;
+    }
+
+    .ip-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .ip-topbar {
+      height: 60px;
+      background: var(--ip-surface);
+      border-bottom: 1px solid var(--ip-border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ip-content {
+      padding: 1.5rem;
+      max-width: 1360px;
+    }
+
+    .ip-card {
+      background: var(--ip-surface);
+      border: 1px solid var(--ip-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .ip-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .credit-bar {
+      height: 7px;
+      border-radius: 99px;
+      background: #EAE8E1;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    #ip-toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 3000;
+    }
+  </style>
+</head>
+
+<body data-page="admin-customer-management" data-roles="admin">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV2 · Phân hệ Kinh doanh &
+        Admin</div>
+      <a class="ip-nav-link" href="SV2-Trang1-sales-customer-balance.html"><i class="bi bi-building-check"></i> 1. Công
+        nợ KH & Tuổi nợ</a>
+      <a class="ip-nav-link" href="SV2-Trang2-sales-payment-reminders.html"><i class="bi bi-envelope-paper"></i> 2. Nhắc
+        thanh toán & AI-2</a>
+      <a class="ip-nav-link active" href="SV2-Trang3-admin-customer-management.html"><i class="bi bi-people-fill"></i>
+        3. [Admin] Quản trị KH B2B</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Phạm Gia Bảo</strong><br><span
+          class="badge bg-danger-subtle text-danger-emphasis mt-1">Quản trị viên Hệ thống</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Quản trị viên (Phần của SV2) / <strong class="text-dark">Quản lý Danh mục Khách
+            hàng B2B, Hạn mức & Luật Chặn Lưu trữ</strong></div>
+        <a class="btn btn-sm btn-outline-primary" href="SV2-Trang1-sales-customer-balance.html"><i
+            class="bi bi-box-arrow-up-right"></i> Xem bên Sổ Công nợ</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+    /**
+     * @owner SV2 (Chia sẻ phân hệ Quản trị viên)
+     * @spec §8.4, §10.3 CRUD Khách hàng B2B, Kiểm tra MST 10–13 chữ số & Luật Chặn Lưu trữ khi còn dư nợ > 0
+     */
+    (function (window) {
+      'use strict';
+      const IP = (window.IP = window.IP || {});
+      const CUST_KEY = 'invoicepilot.sv2.admin.customers.v1';
+
+      IP.Fmt = { vnd: (n) => Math.round(Number(n || 0)).toLocaleString('vi-VN') + ' ₫' };
+
+      const SEED_CUSTOMERS = [
+        { id: 'c1', code: 'KH-001', name: 'Tập đoàn Bán lẻ Phú Thái', taxCode: '0101234567', industry: 'Bán lẻ & Phân phối', creditLimit: 300000000, balance: 205000000, openInvoices: 2, status: 'active' },
+        { id: 'c2', code: 'KH-002', name: 'Công ty CP Logistics Sao Việt', taxCode: '0102345678', industry: 'Vận tải & Kho bãi', creditLimit: 200000000, balance: 68000000, openInvoices: 1, status: 'active' },
+        { id: 'c3', code: 'KH-003', name: 'Bệnh viện Quốc tế Minh Tâm', taxCode: '0103456789', industry: 'Y tế & Dược phẩm', creditLimit: 250000000, balance: 0, openInvoices: 0, status: 'active' },
+        { id: 'c4', code: 'KH-004', name: 'Công ty TNHH Nội thất Đông Á', taxCode: '0309876543', industry: 'Sản xuất công nghiệp', creditLimit: 150000000, balance: 0, openInvoices: 0, status: 'archived' }
+      ];
+
+      // 1. TẦNG DỮ LIỆU KHÁCH HÀNG & 2 RÀNG BUỘC NGHIỆP VỤ CỐT LÕI (IP.DB)
+      IP.DB = {
+        list: function () {
+          const raw = localStorage.getItem(CUST_KEY);
+          return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED_CUSTOMERS));
+        },
+        save: function (list) { localStorage.setItem(CUST_KEY, JSON.stringify(list)); },
+        // Ràng buộc 1: Kiểm tra Mã số thuế 10–13 chữ số & chống trùng lặp MST
+        createCustomer: function (payload) {
+          const list = this.list();
+          const tax = String(payload.taxCode || '').trim();
+          if (!/^\d{10}(\d{3})?$/.test(tax)) {
+            return { ok: false, message: 'Mã số thuế không hợp lệ (Phải gồm 10 hoặc 13 chữ số).' };
+          }
+          if (list.some((c) => c.taxCode === tax)) {
+            return { ok: false, message: `Mã số thuế "${tax}" đã tồn tại trên hệ thống!` };
+          }
+          const newCust = {
+            id: 'c_' + Date.now(),
+            code: 'KH-00' + (list.length + 1),
+            name: payload.name.trim(),
+            taxCode: tax,
+            industry: payload.industry,
+            creditLimit: Number(payload.creditLimit || 100000000),
+            balance: 0,
+            openInvoices: 0,
+            status: 'active'
+          };
+          list.unshift(newCust);
+          this.save(list);
+          return { ok: true, data: newCust };
+        },
+        // Ràng buộc 2 (Luật bảo toàn công nợ): Chặn lưu trữ khách hàng nếu còn dư nợ > 0 hoặc còn hóa đơn mở
+        toggleArchiveCustomer: function (id) {
+          const list = this.list();
+          const cust = list.find((c) => c.id === id);
+          if (!cust) return { ok: false, message: 'Không tìm thấy khách hàng.' };
+
+          if (cust.status === 'active') {
+            if (cust.balance > 0 || cust.openInvoices > 0) {
+              return {
+                ok: false,
+                message: `CHẶN LƯU TRỮ: "${cust.name}" đang còn dư nợ ${IP.Fmt.vnd(cust.balance)} trên ${cust.openInvoices} hóa đơn mở. Vui lòng tất toán về 0 ₫ trước khi lưu trữ!`
+              };
+            }
+            cust.status = 'archived';
+          } else {
+            cust.status = 'active';
+          }
+          this.save(list);
+          return { ok: true, data: cust };
+        }
+      };
+
+      function toast(title, msg, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `alert alert-${type} shadow border-0 py-2 px-3 mb-2`;
+        el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+        document.getElementById('ip-toast-box').appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      }
+
+      // 2. RENDER GIAO DIỆN QUẢN TRỊ KHÁCH HÀNG B2B
+      function renderPage() {
+        const root = document.getElementById('main-content');
+        const customers = IP.DB.list();
+        const totalCredit = customers.filter((c) => c.status === 'active').reduce((s, c) => s + c.creditLimit, 0);
+
+        root.innerHTML = `
+        <div class="row g-3 mb-4">
+          <div class="col-md-8">
+            <div class="ip-card h-100">
+              <h6 class="fw-bold mb-2"><i class="bi bi-building-add text-primary me-1"></i>Thêm Doanh nghiệp B2B Mới (Kiểm tra MST 10–13 số chống trùng)</h6>
+              <form id="form-add-cust" class="row g-2 align-items-end">
+                <div class="col-md-4"><label class="form-label small mb-1">Tên pháp nhân doanh nghiệp</label><input id="c-name" class="form-control form-control-sm" placeholder="VD: Công ty CP Thép Việt" required></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Mã số thuế (10/13 số)</label><input id="c-tax" class="form-control form-control-sm ip-num" placeholder="0109988776" required></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Hạn mức tín dụng (₫)</label><input type="number" id="c-limit" class="form-control form-control-sm ip-num" value="300000000" step="50000000"></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-plus-lg"></i> Thêm KH</button></div>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="ip-card h-100 d-flex flex-column justify-content-center">
+              <div class="small text-muted">Tổng hạn mức tín dụng đang cấp phát</div>
+              <div class="fs-4 fw-bold text-primary ip-num">${IP.Fmt.vnd(totalCredit)}</div>
+              <div class="small text-muted">${customers.filter((c) => c.status === 'active').length} doanh nghiệp hoạt động · ${customers.filter((c) => c.status === 'archived').length} đã lưu trữ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ip-card">
+          <h5 class="fw-bold mb-3">Danh mục Khách hàng Doanh nghiệp & Kiểm soát Hạn mức</h5>
+          <table class="table align-middle mb-0">
+            <thead><tr><th>Mã KH / Tên Doanh nghiệp</th><th>Mã số thuế</th><th class="text-end">Dư nợ hiện tại</th><th style="width:220px">Sử dụng Hạn mức Tín dụng</th><th>Trạng thái</th><th class="text-end">Thao tác Quản trị</th></tr></thead>
+            <tbody>
+              ${customers.map((c) => {
+          const pct = c.creditLimit > 0 ? Math.min(100, Math.round((c.balance / c.creditLimit) * 100)) : 0;
+          const barColor = pct >= 65 ? '#C83E3B' : '#0B5D50';
+          return `<tr>
+                  <td><div class="fw-bold">${c.code} · ${c.name}</div><div class="small text-muted">${c.industry}</div></td>
+                  <td class="ip-num">${c.taxCode}</td>
+                  <td class="ip-num text-end fw-bold ${c.balance > 0 ? 'text-danger' : 'text-success'}">${IP.Fmt.vnd(c.balance)} <div class="small text-muted">(${c.openInvoices} HĐ mở)</div></td>
+                  <td>
+                    <div class="d-flex justify-content-between small ip-num"><span>${pct}%</span><span>${IP.Fmt.vnd(c.creditLimit)}</span></div>
+                    <div class="credit-bar"><div style="width:${pct}%;height:100%;background:${barColor}"></div></div>
+                  </td>
+                  <td>${c.status === 'active' ? '<span class="badge bg-success-subtle text-success-emphasis">Đang giao dịch</span>' : '<span class="badge bg-secondary-subtle text-secondary-emphasis">Đã lưu trữ</span>'}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm ${c.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}" data-archive="${c.id}">
+                      <i class="bi ${c.status === 'active' ? 'bi-archive' : 'bi-arrow-counterclockwise'}"></i> ${c.status === 'active' ? 'Lưu trữ' : 'Khôi phục'}
+                    </button>
+                  </td>
+                </tr>`;
+        }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+        root.querySelector('#form-add-cust').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const res = IP.DB.createCustomer({
+            name: root.querySelector('#c-name').value,
+            taxCode: root.querySelector('#c-tax').value,
+            industry: 'Thương mại & Dịch vụ B2B',
+            creditLimit: root.querySelector('#c-limit').value
+          });
+          if (!res.ok) return toast('Lỗi kiểm tra dữ liệu', res.message, 'danger');
+          renderPage();
+          toast('Đã thêm doanh nghiệp mới', `${res.data.name} (MST: ${res.data.taxCode})`);
+        });
+
+        root.querySelectorAll('[data-archive]').forEach((btn) => btn.addEventListener('click', () => {
+          const res = IP.DB.toggleArchiveCustomer(btn.dataset.archive);
+          if (!res.ok) return toast('Chặn bởi Luật Bảo toàn Công nợ', res.message, 'danger');
+          renderPage();
+          toast('Đã cập nhật trạng thái khách hàng', `${res.data.name} -> ${res.data.status === 'archived' ? 'Đã lưu trữ' : 'Đang giao dịch'}`);
+        }));
+      }
+
+      document.addEventListener('DOMContentLoaded', renderPage);
+    })(window);
+  </script>
+</body>
+
+</html>
