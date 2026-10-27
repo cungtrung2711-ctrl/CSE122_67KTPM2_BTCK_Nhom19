@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV3 · VIDEO 2 (TRANG 2 - QUẢN LÝ CFO): HÓA ĐƠN QUÁ HẠN (CHẤM ĐIỂM RỦI RO 0-100)
+     & MÔ HÌNH DỰ BÁO DÒNG TIỀN 3 KỊCH BẢN (CƠ SỞ / THẬN TRỌNG / LẠC QUAN)
+     ========================================================================= -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV3 · Trang 2 — Hóa đơn Quá hạn (Chấm điểm Rủi ro) & Dự báo Dòng tiền | InvoicePilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --ip-bg: #F7F6F2; --ip-surface: #FFFFFF; --ip-sidebar: #0F1F1C; --ip-primary: #0B5D50; --ip-accent: #E8B44A; --ip-border: #E4E2DC; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--ip-bg); color: #14201D; margin: 0; }
+    .ip-shell { display: flex; min-height: 100vh; }
+    .ip-sidebar { width: 250px; background: var(--ip-sidebar); color: #EAF2EF; padding: 1.25rem 1rem; flex-shrink: 0; }
+    .ip-brand { font-weight: 700; font-size: 1.15rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .ip-nav-link { display: flex; align-items: center; gap: 10px; color: rgba(234,242,239,0.75); padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+    .ip-nav-link:hover, .ip-nav-link.active { background: rgba(232,180,74,0.16); color: var(--ip-accent); font-weight: 600; }
+    .ip-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ip-topbar { height: 60px; background: var(--ip-surface); border-bottom: 1px solid var(--ip-border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .ip-content { padding: 1.5rem; max-width: 1360px; }
+    .ip-card { background: var(--ip-surface); border: 1px solid var(--ip-border); border-radius: 12px; padding: 1.25rem; }
+    .ip-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .scenario-card { border: 2px solid var(--ip-border); border-radius: 10px; padding: 12px; cursor: pointer; background: #fff; }
+    .scenario-card.active { border-color: var(--ip-primary); background: #F1F8F6; }
+    #ip-toast-box { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+  </style>
+</head>
+<body data-page="manager-overdue-invoices" data-roles="manager">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV3 · Phân hệ Quản lý & Admin</div>
+      <a class="ip-nav-link" href="SV3-Trang1-manager-receivable-dashboard.html"><i class="bi bi-bar-chart-line"></i> 1. Dashboard CFO & AI-3</a>
+      <a class="ip-nav-link active" href="SV3-Trang2-manager-overdue-invoices.html"><i class="bi bi-exclamation-octagon"></i> 2. HĐ Quá hạn & Dự báo</a>
+      <a class="ip-nav-link" href="SV3-Trang3-admin-user-management.html"><i class="bi bi-shield-lock"></i> 3. [Admin] Quản trị Tài khoản</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Lê Hoàng Anh</strong><br><span class="text-warning">Giám đốc Tài chính (CFO)</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Quản lý Điều hành / <strong class="text-dark">Hóa đơn Quá hạn (Chấm điểm Rủi ro Luật 0–100) & Dự báo Dòng tiền 3 Kịch bản</strong></div>
+        <a class="btn btn-sm btn-outline-secondary" href="SV3-Trang1-manager-receivable-dashboard.html"><i class="bi bi-arrow-left"></i> Về Dashboard CFO</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+  /**
+   * @owner SV3
+   * @spec §8.3 Thuật toán Chấm điểm Rủi ro Luật (0–100), Giao việc Hàng loạt & Dự báo 3 Kịch bản
+   */
+  (function (window) {
+    'use strict';
+    const IP = (window.IP = window.IP || {});
+    const OVERDUE_KEY = 'invoicepilot.sv3.overdue.v1';
+
+    IP.Fmt = { vnd: (n) => Math.round(Number(n || 0)).toLocaleString('vi-VN') + ' ₫' };
+
+    // 1. THUẬT TOÁN CHẤM ĐIỂM RỦI RO QUÁ HẠN TƯỜNG MINH 0–100 ĐIỂM & DỰ BÁO 3 KỊCH BẢN (IP.Calc)
+    IP.Calc = {
+      overdueRiskScore: function (inv) {
+        let score = 0; const reasons = [];
+        // (1) Điểm theo số ngày quá hạn (Tối đa 45 điểm)
+        if (inv.daysOverdue > 90) { score += 45; reasons.push(`Quá hạn ${inv.daysOverdue}n (>90n: +45đ)`); }
+        else if (inv.daysOverdue > 60) { score += 35; reasons.push(`Quá hạn ${inv.daysOverdue}n (+35đ)`); }
+        else if (inv.daysOverdue > 30) { score += 22; reasons.push(`Quá hạn ${inv.daysOverdue}n (+22đ)`); }
+        else { score += 10; reasons.push(`Quá hạn ${inv.daysOverdue}n (+10đ)`); }
+
+        // (2) Điểm theo quy mô số tiền còn nợ (Tối đa 25 điểm)
+        if (inv.amount >= 200000000) { score += 25; reasons.push('Số dư >= 200tr (+25đ)'); }
+        else if (inv.amount >= 100000000) { score += 18; reasons.push('Số dư >= 100tr (+18đ)'); }
+        else { score += 8; }
+
+        // (3) Điểm vượt hạn mức tín dụng & lịch sử trễ hạn (+15đ mỗi tiêu chí)
+        if (inv.overCredit) { score += 15; reasons.push('Vượt hạn mức tín dụng (+15đ)'); }
+        if (inv.lateHistory) { score += 15; reasons.push('Tỷ lệ trễ hạn lịch sử >= 40% (+15đ)'); }
+
+        const total = Math.min(100, score);
+        const level = total >= 60 ? 'high' : total >= 35 ? 'medium' : 'low';
+        return { score: total, level, reasons: reasons.join(' · ') };
+      },
+
+      // Mô hình dự báo dòng tiền theo tỷ lệ thu hồi quá hạn (%) và độ trễ thanh toán (ngày)
+      forecastCashflow: function (recoveryPct, delayDays) {
+        const baseWeeks = [
+          { week: 'Tuần 1 (01–07/11)', inTerm: 85000000, overduePool: 120000000 },
+          { week: 'Tuần 2 (08–14/11)', inTerm: 25000000, overduePool: 40000000 },
+          { week: 'Tuần 3 (15–21/11)', inTerm: 110000000, overduePool: 90000000 },
+          { week: 'Tuần 4 (22–30/11)', inTerm: 95000000, overduePool: 110000000 }
+        ];
+        const delayFactor = Math.max(0.5, 1 - delayDays * 0.02);
+        return baseWeeks.map((w) => {
+          const expected = Math.round((w.inTerm + w.overduePool * (recoveryPct / 100)) * delayFactor);
+          return { week: w.week, expected, isShortfall: expected < 45000000 };
+        });
+      }
+    };
+
+    const SEED_OVERDUE = [
+      { id: 'o1', code: 'IP-2026-0003', customer: 'CTCP Dược phẩm Tâm Bình', daysOverdue: 106, amount: 260000000, overCredit: true, lateHistory: true, owner: 'Trần Minh Quân', resolved: false },
+      { id: 'o2', code: 'IP-2026-0008', customer: 'Tập đoàn Bán lẻ Phú Thái', daysOverdue: 53, amount: 110000000, overCredit: false, lateHistory: true, owner: 'Chưa phân công', resolved: false },
+      { id: 'o3', code: 'IP-2026-0019', customer: 'CTCP Logistics Sao Việt', daysOverdue: 19, amount: 68000000, overCredit: false, lateHistory: false, owner: 'Phạm Thảo Vy', resolved: false }
+    ];
+
+    function getList() {
+      const raw = localStorage.getItem(OVERDUE_KEY);
+      return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED_OVERDUE));
+    }
+    function saveList(list) { localStorage.setItem(OVERDUE_KEY, JSON.stringify(list)); }
+
+    const SCENARIOS = {
+      base: { name: 'Kịch bản Cơ sở (Baseline)', recoveryPct: 70, delayDays: 5 },
+      conservative: { name: 'Kịch bản Thận trọng (Stress-Test)', recoveryPct: 45, delayDays: 14 },
+      optimistic: { name: 'Kịch bản Lạc quan (Optimistic)', recoveryPct: 90, delayDays: 0 }
+    };
+    let activeScenario = 'base';
+    let customRecovery = 70;
+    let customDelay = 5;
+    let selectedIds = ['o1', 'o2'];
+
+    function toast(title, msg) {
+      const el = document.createElement('div');
+      el.className = 'alert alert-success shadow border-0 py-2 px-3 mb-2';
+      el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+      document.getElementById('ip-toast-box').appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function renderPage() {
+      const root = document.getElementById('main-content');
+      const rows = getList().map((r) => Object.assign({}, r, { risk: IP.Calc.overdueRiskScore(r) }));
+      const forecast = IP.Calc.forecastCashflow(customRecovery, customDelay);
+
+      root.innerHTML = `
+        <div class="ip-card mb-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div>
+              <h5 class="fw-bold mb-0">1. Điều phối Hóa đơn Quá hạn & Chấm điểm Rủi ro Luật (0–100 điểm)</h5>
+              <div class="small text-muted">Công thức: Ngày quá hạn (45đ) + Quy mô tiền (25đ) + Vượt hạn mức (15đ) + Lịch sử trễ hạn (15đ)</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <select id="sel-owner" class="form-select form-select-sm" style="width:auto">
+                <option value="Trần Minh Quân (Trưởng nhóm KD)">Giao cho: Trần Minh Quân (KD)</option>
+                <option value="Phạm Thảo Vy (Chuyên viên KD)">Giao cho: Phạm Thảo Vy (KD)</option>
+              </select>
+              <button class="btn btn-sm btn-primary" id="btn-bulk-assign"><i class="bi bi-person-check"></i> Giao việc hàng loạt (${selectedIds.length})</button>
+            </div>
+          </div>
+
+          <table class="table align-middle mb-0">
+            <thead><tr><th>Chọn</th><th>Mã HĐ / Khách hàng</th><th>Quá hạn</th><th class="text-end">Số dư quá hạn</th><th>Điểm Rủi ro Luật (0–100)</th><th>Phụ trách Kinh doanh</th><th class="text-end">Trạng thái</th></tr></thead>
+            <tbody>
+              ${rows.map((r) => {
+                const badge = r.risk.level === 'high' ? 'bg-danger' : r.risk.level === 'medium' ? 'bg-warning text-dark' : 'bg-success';
+                return `<tr>
+                  <td><input type="checkbox" class="form-check-input" data-chk="${r.id}" ${selectedIds.includes(r.id) ? 'checked' : ''}></td>
+                  <td><div class="fw-bold ip-num text-primary">${r.code}</div><div class="small fw-semibold">${r.customer}</div></td>
+                  <td class="ip-num fw-bold text-danger">${r.daysOverdue} ngày</td>
+                  <td class="ip-num text-end fw-bold">${IP.Fmt.vnd(r.amount)}</td>
+                  <td>
+                    <span class="badge ${badge} ip-num">${r.risk.score}/100 (${r.risk.level === 'high' ? 'Rủi ro Cao' : r.risk.level === 'medium' ? 'Trung bình' : 'Thấp'})</span>
+                    <div class="small text-muted">${r.risk.reasons}</div>
+                  </td>
+                  <td><span class="badge bg-info-subtle text-info-emphasis">${r.owner}</span></td>
+                  <td class="text-end">
+                    <button class="btn btn-sm ${r.resolved ? 'btn-outline-secondary' : 'btn-outline-success'}" data-resolve="${r.id}">
+                      ${r.resolved ? 'Mở lại theo dõi' : 'Đóng hồ sơ'}
+                    </button>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ip-card border-primary">
+          <h5 class="fw-bold mb-3">2. Mô hình Dự báo Dòng tiền 3 Kịch bản & Cảnh báo Tuần Thiếu hụt Tiền mặt (< 45 Triệu ₫)</h5>
+          <div class="row g-3 mb-3">
+            ${Object.entries(SCENARIOS).map(([k, sc]) => `
+              <div class="col-md-4">
+                <div class="scenario-card ${activeScenario === k ? 'active' : ''}" data-scen="${k}">
+                  <div class="fw-bold">${sc.name}</div>
+                  <div class="small text-muted">Thu hồi nợ quá hạn: <strong>${sc.recoveryPct}%</strong> · Độ trễ: <strong>+${sc.delayDays} ngày</strong></div>
+                </div>
+              </div>`).join('')}
+          </div>
+
+          <div class="row g-3 align-items-center mb-3 p-2 bg-light rounded border">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold mb-1">Tùy chỉnh Tỷ lệ thu hồi nợ quá hạn: <strong class="ip-num text-primary">${customRecovery}%</strong></label>
+              <input type="range" class="form-range" id="rng-rec" min="20" max="100" step="5" value="${customRecovery}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold mb-1">Tùy chỉnh Độ trễ thanh toán bình quân: <strong class="ip-num text-danger">+${customDelay} ngày</strong></label>
+              <input type="range" class="form-range" id="rng-delay" min="0" max="25" step="1" value="${customDelay}">
+            </div>
+          </div>
+
+          <table class="table table-bordered align-middle mb-0">
+            <thead class="table-light"><tr><th>Kỳ dự báo theo tuần</th><th class="text-end">Dòng tiền thu dự kiến</th><th>Đánh giá An toàn Thanh khoản (Ngưỡng tối thiểu 45.000.000 ₫/tuần)</th></tr></thead>
+            <tbody>
+              ${forecast.map((w) => `
+                <tr class="${w.isShortfall ? 'table-danger' : ''}">
+                  <td class="fw-semibold">${w.week}</td>
+                  <td class="ip-num text-end fw-bold">${IP.Fmt.vnd(w.expected)}</td>
+                  <td>${w.isShortfall ? '<span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> Cảnh báo thiếu hụt tiền mặt (< 45 tr ₫) — Cần đôn đốc thu nợ ngay!</span>' : '<span class="badge bg-success-subtle text-success-emphasis">Đảm bảo thanh khoản an toàn</span>'}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+      root.querySelectorAll('[data-chk]').forEach((c) => c.addEventListener('change', () => {
+        const id = c.dataset.chk;
+        selectedIds = c.checked ? [...selectedIds, id] : selectedIds.filter((x) => x !== id);
+        renderPage();
+      }));
+      root.querySelector('#btn-bulk-assign').addEventListener('click', () => {
+        const owner = root.querySelector('#sel-owner').value;
+        const list = getList();
+        list.forEach((item) => { if (selectedIds.includes(item.id)) item.owner = owner; });
+        saveList(list); renderPage();
+        toast('Đã giao phụ trách hàng loạt', `Đã phân công ${selectedIds.length} hóa đơn quá hạn cho ${owner}.`);
+      });
+      root.querySelectorAll('[data-resolve]').forEach((b) => b.addEventListener('click', () => {
+        const list = getList();
+        const item = list.find((x) => x.id === b.dataset.resolve);
+        if (item) { item.resolved = !item.resolved; saveList(list); renderPage(); toast('Đã cập nhật trạng thái hồ sơ', item.code); }
+      }));
+      root.querySelectorAll('[data-scen]').forEach((card) => card.addEventListener('click', () => {
+        activeScenario = card.dataset.scen;
+        customRecovery = SCENARIOS[activeScenario].recoveryPct;
+        customDelay = SCENARIOS[activeScenario].delayDays;
+        renderPage();
+      }));
+      root.querySelector('#rng-rec').addEventListener('input', (e) => { customRecovery = Number(e.target.value); renderPage(); });
+      root.querySelector('#rng-delay').addEventListener('input', (e) => { customDelay = Number(e.target.value); renderPage(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderPage);
+  })(window);
+  </script>
+</body>
+</html>

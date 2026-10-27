@@ -1,0 +1,548 @@
+/**
+ * @owner SV4
+ * @spec §2, §3.4, §7.1 Landing Page, Interactive Slide Deck & Ximitech-Inspired Scroll Role Landing Styles (Prefix: .lnd-, .ximi-)
+ */
+.lnd-navbar {
+  background-color: var(--ip-surface);
+  border-bottom: 1px solid var(--ip-border);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.lnd-hero {
+  padding: 40px 0 36px;
+  border-bottom: 1px solid var(--ip-border);
+}
+
+.lnd-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--ip-radius-pill);
+  background: var(--ip-primary-tint);
+  color: var(--ip-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.lnd-hero-title {
+  font-size: 2.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  margin-bottom: 14px;
+}
+
+/* Interactive Auto-Play & Wheel-Scrollable Slide Presentation Deck */
+.lnd-slide-deck {
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border-strong);
+  border-radius: 18px;
+  box-shadow: var(--ip-shadow-card);
+  overflow: hidden;
+  position: relative;
+}
+
+.lnd-slide-deck-header {
+  background: linear-gradient(135deg, #071310 0%, #0A211D 55%, #0B5D50 100%);
+  color: #FFFFFF;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.lnd-slide-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lnd-slide-tab-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #D7E5E1;
+  border-radius: var(--ip-radius-pill);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lnd-slide-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+}
+.lnd-slide-tab-btn.active {
+  background: var(--ip-accent);
+  border-color: var(--ip-accent);
+  color: #071310;
+  font-weight: 700;
+}
+
+.lnd-slide-progress-wrap {
+  height: 4px;
+  width: 100%;
+  background: rgba(11, 93, 80, 0.15);
+  overflow: hidden;
+}
+.lnd-slide-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ip-primary), var(--ip-accent));
+  width: 0%;
+  transition: width 120ms linear;
+}
+
+.lnd-slide-viewport {
+  position: relative;
+  padding: 28px 26px;
+  min-height: 370px;
+  background: var(--ip-surface);
+}
+
+.lnd-slide-item {
+  display: none;
+  animation: lndSlideFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lnd-slide-item.active {
+  display: block;
+}
+
+@keyframes lndSlideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lnd-slide-footer {
+  background: var(--ip-surface-raised);
+  border-top: 1px solid var(--ip-border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lnd-slide-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lnd-slide-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  background: var(--ip-border-strong);
+  padding: 0;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.lnd-slide-dot.active {
+  width: 28px;
+  background: var(--ip-primary);
+}
+
+/* HTML/CSS Pure Dashboard Mockup (§7.1) */
+.lnd-mockup-window {
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border-strong);
+  border-radius: var(--ip-radius-modal);
+  box-shadow: var(--ip-shadow-card);
+  overflow: hidden;
+}
+.lnd-mockup-topbar {
+  background: var(--ip-sidebar);
+  color: #FFFFFF;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+.lnd-mockup-dots {
+  display: flex;
+  gap: 6px;
+}
+.lnd-mockup-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+.lnd-mockup-body {
+  padding: 18px;
+}
+.lnd-mockup-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 96px;
+  padding: 12px;
+  background: var(--ip-surface-raised);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-sm);
+}
+.lnd-mockup-bar {
+  flex: 1;
+  background: var(--ip-chart-teal);
+  border-radius: 4px 4px 0 0;
+}
+.lnd-mockup-bar.alt {
+  background: var(--ip-chart-honey);
+}
+
+.lnd-section {
+  padding: 52px 0;
+  border-bottom: 1px solid var(--ip-border);
+}
+
+.lnd-step-card {
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border);
+  border-radius: var(--ip-radius-card);
+  padding: 22px;
+  height: 100%;
+  position: relative;
+}
+.lnd-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ip-primary);
+  color: var(--ip-primary-ink);
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   Ximitech.vn-Inspired Scroll-Driven Per-Role Landing Page (.ximi-*)
+   ========================================================================== */
+.ximi-role-landing {
+  position: relative;
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border-strong);
+  border-radius: 20px;
+  box-shadow: var(--ip-shadow-card);
+  margin-bottom: 36px;
+  overflow: clip;
+  transition: opacity 380ms cubic-bezier(0.16, 1, 0.3, 1), transform 380ms cubic-bezier(0.16, 1, 0.3, 1), max-height 450ms ease;
+}
+
+.ximi-role-landing.ximi-collapsing {
+  opacity: 0;
+  transform: translateY(-24px) scale(0.985);
+  pointer-events: none;
+}
+
+.ximi-sticky-bar {
+  position: sticky;
+  top: calc(var(--ip-topbar-height) + 8px);
+  z-index: 1015;
+  background: rgba(7, 19, 16, 0.94);
+  backdrop-filter: blur(10px);
+  color: #EAF2EF;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ximi-chapter-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ximi-chapter-pill {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #C7DBD5;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ximi-chapter-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+.ximi-chapter-pill.active {
+  background: var(--ip-accent);
+  border-color: var(--ip-accent);
+  color: #071310;
+  font-weight: 700;
+}
+
+.ximi-scroll-progress {
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.ximi-scroll-progress-fill {
+  height: 100%;
+  width: 15%;
+  background: linear-gradient(90deg, #38B39F 0%, #E8B44A 100%);
+  transition: width 160ms ease-out;
+}
+
+.ximi-hero {
+  background: radial-gradient(circle at 85% 20%, rgba(56, 179, 159, 0.22), transparent 45%),
+              linear-gradient(145deg, #071310 0%, #0A211D 58%, #0B5D50 100%);
+  color: #FFFFFF;
+  padding: 44px 36px 34px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ximi-slash-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ip-font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ip-accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.ximi-hero-headline {
+  font-size: clamp(1.65rem, 2.8vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+}
+
+.ximi-hero-headline em {
+  font-style: normal;
+  color: var(--ip-accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(232, 180, 74, 0.45);
+  text-underline-offset: 6px;
+}
+
+.ximi-ticker {
+  background: #050E0C;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #BFD4CE;
+}
+.ximi-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+.ximi-ticker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ip-accent);
+  display: inline-block;
+}
+
+.ximi-chapter {
+  padding: 42px 36px;
+  border-bottom: 1px solid var(--ip-border);
+  background: var(--ip-surface);
+  transition: background-color 240ms ease;
+}
+.ximi-chapter:nth-child(even) {
+  background: var(--ip-surface-raised);
+}
+
+.ximi-chapter-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+
+.ximi-chapter-num {
+  font-family: var(--ip-font-mono);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+  padding: 4px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ximi-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.ximi-matrix-card {
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.ximi-matrix-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--ip-shadow-card);
+}
+.ximi-matrix-card.is-highlight {
+  border-color: var(--ip-primary);
+  background: var(--ip-primary-tint);
+}
+.ximi-matrix-step {
+  font-family: var(--ip-font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ip-muted);
+  margin-bottom: 8px;
+  display: block;
+}
+.ximi-matrix-card.is-highlight .ximi-matrix-step {
+  color: var(--ip-primary);
+}
+
+.ximi-workflow-card {
+  background: var(--ip-surface);
+  border: 1px solid var(--ip-border-strong);
+  border-radius: 16px;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.ximi-workflow-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ip-primary);
+  box-shadow: var(--ip-shadow-card);
+}
+
+.ximi-live-feed-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #EAF2EF;
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+}
+
+.ximi-transition-gate {
+  background: linear-gradient(135deg, #071310 0%, #0B5D50 100%);
+  color: #FFFFFF;
+  padding: 38px 36px;
+  text-align: center;
+  position: relative;
+}
+
+.ximi-gate-progress-track {
+  max-width: 440px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  margin: 16px auto;
+  overflow: hidden;
+}
+.ximi-gate-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--ip-accent);
+  transition: width 150ms linear;
+}
+
+.ximi-workspace-anchor-banner {
+  background: var(--ip-primary-tint);
+  border: 1px solid var(--ip-primary);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 991.98px) {
+  .ximi-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ximi-hero,
+  .ximi-chapter,
+  .ximi-transition-gate {
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .lnd-hero {
+    padding: 28px 0;
+  }
+  .lnd-hero-title {
+    font-size: 1.75rem;
+  }
+  .lnd-slide-viewport {
+    padding: 18px 16px;
+    min-height: auto;
+  }
+  .lnd-section {
+    padding: 36px 0;
+  }
+  .ximi-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+  .ximi-sticky-bar {
+    top: var(--ip-topbar-height);
+    padding: 8px 12px;
+  }
+}

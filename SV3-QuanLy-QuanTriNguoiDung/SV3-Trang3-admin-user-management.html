@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+     SV3 · VIDEO 3 (TRANG 3 - QUẢN TRỊ VIÊN): QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN 4 VAI TRÒ
+     Kiến trúc chuẩn InvoicePilot: Bảo vệ Admin cuối cùng & Cấp mật khẩu tạm 1 lần
+     ========================================================================= -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SV3 · Trang 3 (Admin) — Quản trị Tài khoản & Phân quyền 4 Nghiệp vụ | InvoicePilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root { --ip-bg: #F7F6F2; --ip-surface: #FFFFFF; --ip-sidebar: #0F1F1C; --ip-primary: #0B5D50; --ip-accent: #E8B44A; --ip-border: #E4E2DC; }
+    body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--ip-bg); color: #14201D; margin: 0; }
+    .ip-shell { display: flex; min-height: 100vh; }
+    .ip-sidebar { width: 250px; background: var(--ip-sidebar); color: #EAF2EF; padding: 1.25rem 1rem; flex-shrink: 0; }
+    .ip-brand { font-weight: 700; font-size: 1.15rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+    .ip-nav-link { display: flex; align-items: center; gap: 10px; color: rgba(234,242,239,0.75); padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+    .ip-nav-link:hover, .ip-nav-link.active { background: rgba(232,180,74,0.16); color: var(--ip-accent); font-weight: 600; }
+    .ip-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ip-topbar { height: 60px; background: var(--ip-surface); border-bottom: 1px solid var(--ip-border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .ip-content { padding: 1.5rem; max-width: 1360px; }
+    .ip-card { background: var(--ip-surface); border: 1px solid var(--ip-border); border-radius: 12px; padding: 1.25rem; }
+    .ip-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    #ip-toast-box { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+  </style>
+</head>
+<body data-page="admin-user-management" data-roles="admin">
+  <div class="ip-shell">
+    <aside class="ip-sidebar">
+      <a class="ip-brand" href="#"><i class="bi bi-receipt-cutoff text-warning fs-4"></i> InvoicePilot</a>
+      <div class="small text-uppercase text-white-50 mb-2 px-2" style="font-size:0.72rem;">SV3 · Phân hệ Quản lý & Admin</div>
+      <a class="ip-nav-link" href="SV3-Trang1-manager-receivable-dashboard.html"><i class="bi bi-bar-chart-line"></i> 1. Dashboard CFO & AI-3</a>
+      <a class="ip-nav-link" href="SV3-Trang2-manager-overdue-invoices.html"><i class="bi bi-exclamation-octagon"></i> 2. HĐ Quá hạn & Dự báo</a>
+      <a class="ip-nav-link active" href="SV3-Trang3-admin-user-management.html"><i class="bi bi-shield-lock"></i> 3. [Admin] Quản trị Tài khoản</a>
+      <hr class="border-secondary my-3">
+      <div class="small text-white-50 px-2">Đăng nhập: <strong>Phạm Gia Bảo</strong><br><span class="badge bg-danger-subtle text-danger-emphasis mt-1">Quản trị viên Hệ thống</span></div>
+    </aside>
+
+    <div class="ip-main">
+      <header class="ip-topbar">
+        <div class="small text-muted">Quản trị viên (Phần của SV3) / <strong class="text-dark">Quản lý Tài khoản Người dùng, Phân quyền 4 Nghiệp vụ & Bảo vệ Admin Cuối cùng</strong></div>
+        <a class="btn btn-sm btn-outline-primary" href="SV3-Trang2-manager-overdue-invoices.html"><i class="bi bi-box-arrow-up-right"></i> Xem Giao việc bên Trang Quá hạn</a>
+      </header>
+      <main id="main-content" class="ip-content"></main>
+    </div>
+  </div>
+  <div id="ip-toast-box"></div>
+
+  <script>
+  /**
+   * @owner SV3 (Chia sẻ phân hệ Quản trị viên)
+   * @spec §4, §8.4 Đặc quyền requireAdminActor(), Bảo vệ Admin cuối cùng countActiveAdmins() & Cấp mật khẩu tạm
+   */
+  (function (window) {
+    'use strict';
+    const IP = (window.IP = window.IP || {});
+    const USER_KEY = 'invoicepilot.sv3.users.v1';
+
+    const ROLE_LABELS = { accountant: 'Kế toán', sales: 'Kinh doanh', manager: 'Quản lý', admin: 'Quản trị viên' };
+
+    const SEED_USERS = [
+      { id: 'u1', name: 'Nguyễn Thu Hà', email: 'ketoan@hoabinhdigital.vn', role: 'accountant', title: 'Kế toán trưởng công nợ', status: 'active' },
+      { id: 'u2', name: 'Trần Minh Quân', email: 'kinhdoanh@hoabinhdigital.vn', role: 'sales', title: 'Trưởng phòng Kinh doanh B2B', status: 'active' },
+      { id: 'u3', name: 'Lê Hoàng Anh', email: 'quanly@hoabinhdigital.vn', role: 'manager', title: 'Giám đốc Tài chính (CFO)', status: 'active' },
+      { id: 'u4', name: 'Phạm Gia Bảo', email: 'admin@hoabinhdigital.vn', role: 'admin', title: 'Quản trị viên Hệ thống (Duy nhất)', status: 'active' }
+    ];
+
+    // 1. TẦNG DỮ LIỆU NGƯỜI DÙNG & THUẬT TOÁN BẢO VỆ ADMIN CUỐI CÙNG (IP.DB)
+    IP.DB = {
+      listUsers: function () {
+        const raw = localStorage.getItem(USER_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED_USERS));
+      },
+      saveUsers: function (list) { localStorage.setItem(USER_KEY, JSON.stringify(list)); },
+      // Đếm số lượng Quản trị viên đang hoạt động (active)
+      countActiveAdmins: function (users) {
+        return users.filter((u) => u.role === 'admin' && u.status === 'active').length;
+      },
+      createUser: function (payload) {
+        const users = this.listUsers();
+        const email = String(payload.email || '').trim().toLowerCase();
+        if (!email.includes('@')) return { ok: false, message: 'Địa chỉ email công việc không hợp lệ.' };
+        if (users.some((u) => u.email.toLowerCase() === email)) {
+          return { ok: false, message: `Email "${email}" đã được cấp cho một nhân sự khác!` };
+        }
+        const newUser = { id: 'u_' + Date.now(), name: payload.name.trim(), email, role: payload.role, title: payload.title || 'Chuyên viên nghiệp vụ', status: 'active' };
+        users.push(newUser);
+        this.saveUsers(users);
+        return { ok: true, data: newUser };
+      },
+      // Ràng buộc cốt lõi: Không cho phép khóa hoặc xóa Quản trị viên đang hoạt động cuối cùng!
+      toggleLockUser: function (id) {
+        const users = this.listUsers();
+        const user = users.find((u) => u.id === id);
+        if (!user) return { ok: false, message: 'Không tìm thấy tài khoản.' };
+
+        if (user.status === 'active') {
+          if (user.role === 'admin' && this.countActiveAdmins(users) <= 1) {
+            return {
+              ok: false,
+              message: `CHẶN BẢO MẬT: "${user.name}" là Quản trị viên đang hoạt động cuối cùng của hệ thống. Không thể tự khóa hoặc hạ quyền!`
+            };
+          }
+          user.status = 'disabled';
+        } else {
+          user.status = 'active';
+        }
+        this.saveUsers(users);
+        return { ok: true, data: user };
+      },
+      // Cấp mật khẩu khởi tạo mới (Hiển thị 1 lần)
+      resetPassword: function (id) {
+        const users = this.listUsers();
+        const user = users.find((u) => u.id === id);
+        const tempPass = 'HB@2026#' + Math.floor(1000 + Math.random() * 9000);
+        return { ok: true, user, tempPass };
+      }
+    };
+
+    let lastTempPass = null;
+
+    function toast(title, msg, type = 'success') {
+      const el = document.createElement('div');
+      el.className = `alert alert-${type} shadow border-0 py-2 px-3 mb-2`;
+      el.innerHTML = `<div class="fw-bold small">${title}</div><div class="small">${msg}</div>`;
+      document.getElementById('ip-toast-box').appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+
+    // 2. RENDER GIAO DIỆN QUẢN TRỊ NGƯỜI DÙNG & PHÂN QUYỀN RBAC
+    function renderPage() {
+      const root = document.getElementById('main-content');
+      const users = IP.DB.listUsers();
+      const adminCount = IP.DB.countActiveAdmins(users);
+
+      root.innerHTML = `
+        <div class="row g-3 mb-4">
+          ${Object.entries(ROLE_LABELS).map(([roleKey, label]) => {
+            const count = users.filter((u) => u.role === roleKey).length;
+            return `<div class="col-md-3"><div class="ip-card"><div class="small text-muted">Vai trò · ${label}</div><div class="fs-4 fw-bold text-primary ip-num">${count} tài khoản</div></div></div>`;
+          }).join('')}
+        </div>
+
+        <div class="ip-card mb-4">
+          <h6 class="fw-bold mb-2"><i class="bi bi-person-plus-fill text-primary me-1"></i>Cấp phát Tài khoản Nghiệp vụ Mới (Đặc quyền Admin)</h6>
+          <form id="form-add-user" class="row g-2 align-items-end">
+            <div class="col-md-3"><label class="form-label small mb-1">Họ và tên nhân sự</label><input id="u-name" class="form-control form-control-sm" placeholder="VD: Vũ Hoàng Nam" required></div>
+            <div class="col-md-4"><label class="form-label small mb-1">Email đăng nhập</label><input type="email" id="u-email" class="form-control form-control-sm ip-num" placeholder="nam.vu@hoabinhdigital.vn" required></div>
+            <div class="col-md-3"><label class="form-label small mb-1">Phân quyền nghiệp vụ (RBAC)</label>
+              <select id="u-role" class="form-select form-select-sm">
+                ${Object.entries(ROLE_LABELS).map(([k, lb]) => `<option value="${k}">${lb}</option>`).join('')}
+              </select>
+            </div>
+            <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-check2-circle"></i> Tạo TK</button></div>
+          </form>
+        </div>
+
+        ${lastTempPass ? `
+          <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
+            <div><i class="bi bi-key-fill me-2"></i>Mật khẩu khởi tạo 1 lần của <strong>${lastTempPass.user.name}</strong> (${lastTempPass.user.email}): <code class="fs-6 fw-bold">${lastTempPass.tempPass}</code></div>
+            <button class="btn btn-sm btn-dark" id="btn-copy-pass"><i class="bi bi-clipboard"></i> Sao chép</button>
+          </div>` : ''}
+
+        <div class="ip-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Danh sách Tài khoản & Kiểm soát Bảo vệ Admin Cuối cùng</h5>
+            <span class="badge bg-danger-subtle text-danger-emphasis">Số Admin đang hoạt động: ${adminCount}</span>
+          </div>
+
+          <table class="table align-middle mb-0">
+            <thead><tr><th>Nhân sự</th><th>Email đăng nhập</th><th>Vai trò RBAC</th><th>Chức danh</th><th>Trạng thái</th><th class="text-end">Thao tác Quản trị</th></tr></thead>
+            <tbody>
+              ${users.map((u) => {
+                const isLastAdmin = u.role === 'admin' && u.status === 'active' && adminCount <= 1;
+                return `<tr>
+                  <td class="fw-bold">${u.name}</td>
+                  <td class="ip-num small">${u.email}</td>
+                  <td><span class="badge ${u.role === 'admin' ? 'bg-danger-subtle text-danger-emphasis' : 'bg-primary-subtle text-primary-emphasis'}">${ROLE_LABELS[u.role]}</span></td>
+                  <td class="small text-muted">${u.title}</td>
+                  <td>${u.status === 'active' ? '<span class="badge bg-success-subtle text-success-emphasis">Đang hoạt động</span>' : '<span class="badge bg-secondary">Đã tạm khóa</span>'}</td>
+                  <td class="text-end">
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-secondary" data-reset="${u.id}"><i class="bi bi-key"></i> Cấp MK tạm</button>
+                      <button class="btn btn-sm ${u.status === 'active' ? 'btn-outline-danger' : 'btn-outline-success'}" data-lock="${u.id}">
+                        <i class="bi ${u.status === 'active' ? 'bi-lock' : 'bi-unlock'}"></i> ${isLastAdmin ? 'Khóa (Test Chặn Admin Cuối)' : u.status === 'active' ? 'Tạm khóa' : 'Mở khóa'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+      root.querySelector('#form-add-user').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const res = IP.DB.createUser({
+          name: root.querySelector('#u-name').value,
+          email: root.querySelector('#u-email').value,
+          role: root.querySelector('#u-role').value
+        });
+        if (!res.ok) return toast('Từ chối tạo tài khoản', res.message, 'danger');
+        renderPage();
+        toast('Đã cấp phát tài khoản mới', `${res.data.name} (${ROLE_LABELS[res.data.role]})`);
+      });
+
+      root.querySelectorAll('[data-lock]').forEach((btn) => btn.addEventListener('click', () => {
+        const res = IP.DB.toggleLockUser(btn.dataset.lock);
+        if (!res.ok) return toast('Chặn bởi Quy tắc Bảo vệ Admin Cuối cùng', res.message, 'danger');
+        renderPage();
+        toast('Đã cập nhật trạng thái tài khoản', `${res.data.name} -> ${res.data.status === 'active' ? 'Mở khóa' : 'Đã tạm khóa'}`);
+      }));
+
+      root.querySelectorAll('[data-reset]').forEach((btn) => btn.addEventListener('click', () => {
+        lastTempPass = IP.DB.resetPassword(btn.dataset.reset);
+        renderPage();
+        toast('Đã sinh mật khẩu khởi tạo 1 lần', `Mật khẩu mới: ${lastTempPass.tempPass}`);
+      }));
+
+      const copyBtn = root.querySelector('#btn-copy-pass');
+      if (copyBtn) copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(lastTempPass.tempPass);
+        toast('Đã sao chép mật khẩu', `Đã lưu "${lastTempPass.tempPass}" vào bộ nhớ tạm.`);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderPage);
+  })(window);
+  </script>
+</body>
+</html>
